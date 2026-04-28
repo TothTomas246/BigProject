@@ -80,6 +80,7 @@ var slot2 = new goomba(100, 30, 2);
 var slot3 = new goomba(100, 30, 3);
 var enemies = [slot1, slot2, slot3];
 console.log(actionDiv.children);
+console.log(slot1.class);
 function MageBtnPressed() {
     if (actionDiv.children.length > 0) {
         actCancelBtnPressed();
