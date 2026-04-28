@@ -23,11 +23,13 @@ abstract class enemy {
     maxhp:number = -1
     hp:number = -1
     atk:number = -1
+    pos:number = -1
 
-    constructor(hp:number, atk:number) {
+    constructor(hp:number, atk:number, pos:number) {
         this.hp = hp
         this.maxhp = hp
         this.atk = atk
+        this.pos = pos
     }
 }
 
@@ -41,7 +43,12 @@ class mage extends hero {
     }
 
     fireball(enemy:enemy) {
-        //ještě nemám vymyšleno
+        enemy.hp -= 20
+        this.mana -= 20
+        if (enemy.hp<=0) {
+            var posi = enemy.pos
+            enemies[posi-1] = null
+        }
     }
 }
 
@@ -66,18 +73,60 @@ class bard extends hero {
 }
 
 class goomba extends enemy {
-    constructor(hp:number, atk:number) {
-        super(hp, atk)
+    constructor(hp:number, atk:number, pos:number) {
+        super(hp, atk, pos)
     }
 }
 
+const mageBtn = document.getElementById("MageActBtn") as HTMLButtonElement
+
+const actionDiv = document.getElementById("actions") as HTMLDivElement; 
+const targetDiv = document.getElementById("targets") as HTMLDivElement;
+
 const mage1 = new mage(50, 40, "Maxmilián", 100, 0)
-const warrior1 = new warrior(100, 50, "Henry", 25)
+const warrior1 = new warrior(100, 50, "Miroslav Nekvinda", 25)
 const bard1 = new bard(70, 20, "Dariviel", 0)
 
-const goomba1 = new goomba(100, 30)
+var slot1: any = new goomba(100, 30, 1)
+var slot2: any = new goomba(100, 30, 2)
+var slot3: any = new goomba(100, 30, 3)
+var enemies=[slot1, slot2, slot3]
+console.log(actionDiv.children)
+function MageBtnPressed() {
+
+    if (actionDiv.children.length > 0) {
+        actCancelBtnPressed()
+    }
+
+    const fireball = document.createElement("button") as HTMLButtonElement
+    fireball.innerHTML = "fireball"
+    fireball.id = "fireballBtn"
+    fireball.onclick = fireballBtnPressed
+    actionDiv.appendChild(fireball)
+
+    const cancel = document.createElement("button") as HTMLButtonElement
+    cancel.innerHTML = "Cancel"
+    cancel.id = "cancelBtn"
+    cancel.onclick = actCancelBtnPressed
+    actionDiv.appendChild(cancel)
+    
+}
+
+function fireballBtnPressed() {
+    console.log("boom")
+}
+
+function actCancelBtnPressed() {
+    const children = Array.from(actionDiv.children);
+    for (let object of children) {
+        object.remove();
+    }
+}
 
 console.log(mage1)
 console.log(warrior1)
 console.log(bard1)
-console.log(goomba1)
+
+console.log(enemies[0])
+console.log(enemies[1])
+console.log(enemies[2])
