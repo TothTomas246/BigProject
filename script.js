@@ -24,6 +24,7 @@ class enemy {
     hp = -1;
     atk = -1;
     pos = -1;
+    name = "";
     constructor(hp, atk, pos) {
         this.hp = hp;
         this.maxhp = hp;
@@ -40,7 +41,8 @@ class mage extends hero {
         this.maxmana = mana;
     }
     fireball(enemy) {
-        enemy.hp -= 20;
+        console.log(enemy);
+        enemy.hp -= this.atk;
         this.mana -= 20;
         if (enemy.hp <= 0) {
             var posi = enemy.pos;
@@ -67,6 +69,7 @@ class bard extends hero {
 class goomba extends enemy {
     constructor(hp, atk, pos) {
         super(hp, atk, pos);
+        this.name = "Goomba";
     }
 }
 const mageBtn = document.getElementById("MageActBtn");
@@ -79,8 +82,21 @@ var slot1 = new goomba(100, 30, 1);
 var slot2 = new goomba(100, 30, 2);
 var slot3 = new goomba(100, 30, 3);
 var enemies = [slot1, slot2, slot3];
-console.log(actionDiv.children);
-console.log(slot1.class);
+var mageAct = null;
+var warriorAct = null;
+var bardAct = null;
+function actCancelBtnPressed() {
+    const children = Array.from(actionDiv.children);
+    for (let object of children) {
+        object.remove();
+    }
+}
+function selectCancelBtnPressed() {
+    const children = Array.from(targetDiv.children);
+    for (let object of children) {
+        object.remove();
+    }
+}
 function MageBtnPressed() {
     if (actionDiv.children.length > 0) {
         actCancelBtnPressed();
@@ -97,17 +113,57 @@ function MageBtnPressed() {
     actionDiv.appendChild(cancel);
 }
 function fireballBtnPressed() {
-    console.log("boom");
-}
-function actCancelBtnPressed() {
-    const children = Array.from(actionDiv.children);
-    for (let object of children) {
-        object.remove();
+    for (let slot in enemies) {
+        console.log(slot);
+        console.log(enemies[slot]);
+        if (enemies[slot] == null) {
+        }
+        else {
+            const enemySelect = document.createElement("button");
+            enemySelect.innerHTML = enemies[slot].name;
+            enemySelect.id = "EnemyPos" + String(enemies[slot].pos);
+            targetDiv.appendChild(enemySelect);
+            enemySelect.addEventListener("click", (event) => {
+                var selectedEnemyPos = Number(enemySelect.id[enemySelect.id.length - 1]);
+                console.log(selectedEnemyPos);
+                mageAct = (enemy) => mage1.fireball(enemy);
+                mageAct(enemies[selectedEnemyPos - 1]);
+            });
+        }
     }
+    const cancelBtn = document.createElement("button");
+    cancelBtn.innerHTML = "Cancel";
+    cancelBtn.onclick = selectCancelBtnPressed;
+    targetDiv.appendChild(cancelBtn);
 }
-console.log(mage1);
-console.log(warrior1);
-console.log(bard1);
-console.log(enemies[0]);
-console.log(enemies[1]);
-console.log(enemies[2]);
+function WarriorBtnpressed() {
+    if (actionDiv.children.length > 0) {
+        actCancelBtnPressed();
+    }
+    const fireball = document.createElement("button");
+    fireball.innerHTML = "fireball";
+    fireball.id = "fireballBtn";
+    fireball.onclick = fireballBtnPressed;
+    actionDiv.appendChild(fireball);
+    const cancel = document.createElement("button");
+    cancel.innerHTML = "Cancel";
+    cancel.id = "cancelBtn";
+    cancel.onclick = actCancelBtnPressed;
+    actionDiv.appendChild(cancel);
+}
+function TurnFinishpressed() {
+    if (bardAct !== null) {
+        bardAct;
+    }
+    bardAct = null;
+    if (mageAct !== null) {
+        mageAct;
+    }
+    mageAct = null;
+    if (warriorAct !== null) {
+        warriorAct;
+    }
+    warriorAct = null;
+    console.log(enemies);
+}
+console.log(enemies);
