@@ -1,11 +1,12 @@
 "use strict";
 class hero {
-    hp = -1;
+    hp = -1; //když dám private tak to říká že "private" nebo "protected" jsou použitelné jen v typescriptu
     maxhp = -1;
     atk = -1;
     name = "";
     shield = -1;
     pos = -1;
+    attackcounter = -1
     constructor(hp, atk, shield, name, pos) {
         this.maxhp = hp;
         this.hp = hp;
@@ -21,7 +22,7 @@ class hero {
         }
     }
     damage(damageamount) {
-        this.hp -= damageamount;
+        this.hp -= damageamount-((damageamount/100)*this.shield);
         if (this.hp <= 0) {
             console.log(this.name+" dead") //eště domyslim nějak
         }
@@ -33,11 +34,15 @@ class enemy {
     atk = -1;
     pos = -1;
     name = "";
+    attackcounter = 1
     constructor(hp, atk, pos) {
         this.hp = hp;
         this.maxhp = hp;
         this.atk = atk;
         this.pos = pos;
+    }
+    Attack() {
+
     }
 }
 class mage extends hero {
@@ -88,5 +93,11 @@ class goomba extends enemy {
     constructor(hp, atk, pos) {
         super(hp, atk, pos);
         this.name = "Goomba";
+    }
+
+    Attack() {
+        var choice = Math.floor(Math.random()*2.999)
+        var chosen = heroes[choice]
+        chosen.damage(20)
     }
 }
