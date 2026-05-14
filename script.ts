@@ -12,15 +12,16 @@ var slot2: any = new goomba(100, 30, 2)
 var slot3: any = new goomba(100, 30, 3)
 var enemies:enemy[]=[slot1, slot2, slot3]
 
-var mageAct: ((enemy: enemy) => void) | null = null
-var warriorAct: ((enemy: enemy) => void) | null= null
-var bardAct: ((enemy: enemy) => void) | null = null
+var mageAct: ((enemy: enemy) => void) | null | ((hero: enemy) => hero) | (() => void) = null
+var warriorAct: ((enemy: enemy) => void) | null | ((hero: hero) => void) | (() => void) = null
+var bardAct: ((heroes: hero[]) => void) | null | ((ememies: enemy[]) => void) | (() => void) = null
 
-var mageTarg: enemy | null = null
-var warriorTarg:  enemy | null = null
-var bardTarg:  enemy | null = null
+var mageTarg: enemy | null | hero = null
+var warriorTarg:  enemy | null | hero = null
+var bardTarg:  enemy | null | hero = null
 
 var turncounter:number = 1
+var wave:number = 1
 
 //pause funkce kterou jsem si půjčil z internetu
 function sleep(ms: number): Promise<void> {
@@ -33,23 +34,29 @@ async function newturn() {
         console.log(enemies)
         console.log(heroes)
 
+        if (mage1 != null) {
         const mageBtn = document.createElement("button") as HTMLButtonElement
         mageBtn.innerHTML = "Mage"
         mageBtn.onclick = MageBtnPressed
         mageBtn.id = "MageActBtn"
         characterDiv.appendChild(mageBtn)
+        }
 
+        if (warrior1 != null) {
         const warriorBtn = document.createElement("button") as HTMLButtonElement
         warriorBtn.innerHTML = "Warrior"
         warriorBtn.onclick = WarriorBtnPressed
         warriorBtn.id = "MageActBtn"
         characterDiv.appendChild(warriorBtn)
+        }
 
+        if (bard1 != null) {
         const bardBtn = document.createElement("button") as HTMLButtonElement
         bardBtn.innerHTML = "Bard"
         bardBtn.onclick = BardBtnPressed
         bardBtn.id = "BardActBtn"
         characterDiv.appendChild(bardBtn)
+        }
 
         const endTurnBtn = document.createElement("button") as HTMLButtonElement
         endTurnBtn.innerHTML = "Finish Turn"
@@ -73,9 +80,9 @@ function selectCancelBtnPressed() {
 
 
 function TurnFinishpressed() {
-    if (bardAct !== null && bardTarg !== null) { bardAct(bardTarg); } bardAct = null;
+    if (bardAct !== null) { bardAct(heroes); } bardAct = null;
     if (mageAct !== null && mageTarg !== null) { mageAct(mageTarg); } mageAct = null;
-    if (warriorAct !== null && warriorTarg !== null) { warriorAct(warriorTarg); } warriorAct = null;
+    if (warriorAct !== null && warriorTarg !== null) { warriorAct(warriorTarg);} warriorAct = null;
     const children = Array.from(characterDiv.children)
     for (let object of children) {
         object.remove()
@@ -95,11 +102,21 @@ function MageBtnPressed() {
     actCancelBtnPressed()
     selectCancelBtnPressed()
 
-    const fireball = document.createElement("button") as HTMLButtonElement
-    fireball.innerHTML = "fireball"
-    fireball.id = "fireballBtn"
-    fireball.onclick = fireballBtnPressed
-    actionDiv.appendChild(fireball)
+    if (mage1.mana>=30) {
+        const fireball = document.createElement("button") as HTMLButtonElement
+        fireball.innerHTML = "fireball"
+        fireball.id = "fireballBtn"
+        fireball.onclick = fireballBtnPressed
+        actionDiv.appendChild(fireball)
+    }
+
+    if (mage1.mana>=20) {
+        const lightningStrike = document.createElement("button") as HTMLButtonElement
+        lightningStrike.innerHTML = "Lightning Strike"
+        lightningStrike.id = "lightningStrikeBtn"
+        lightningStrike.onclick = lightningStrikeBtnPressed
+        actionDiv.appendChild(lightningStrike)
+    }
 
     const cancel = document.createElement("button") as HTMLButtonElement
     cancel.innerHTML = "Cancel"
@@ -132,6 +149,29 @@ function fireballBtnPressed() {
         targetDiv.appendChild(cancelBtn)
 }
 
+function lightningStrikeBtnPressed() {
+    for (let slot in enemies) {
+        if (enemies[slot]==null) {
+        } else {
+            const enemySelect = document.createElement("button") as HTMLButtonElement
+            enemySelect.innerHTML = enemies[slot].name
+            enemySelect.id = "EnemyPos"+String(enemies[slot].pos)
+            targetDiv.appendChild(enemySelect)
+            enemySelect.addEventListener("click", (event: Event) => {
+                var selectedEnemyPos = Number(enemySelect.id[enemySelect.id.length - 1])
+                mageAct = (enemy: enemy) => mage1.lightningStrike(enemy)
+                mageTarg = enemies[selectedEnemyPos-1]
+                actCancelBtnPressed()
+                selectCancelBtnPressed()
+            })
+        }
+    }
+    const cancelBtn = document.createElement("button") as HTMLButtonElement
+        cancelBtn.innerHTML = "Cancel"
+        cancelBtn.onclick = selectCancelBtnPressed
+        targetDiv.appendChild(cancelBtn)
+}
+
 function WarriorBtnPressed() {
     actCancelBtnPressed()
     selectCancelBtnPressed()
@@ -141,6 +181,12 @@ function WarriorBtnPressed() {
     swordslash.id = "swordSlashbtn"
     swordslash.onclick = swordSlashBtnPressed
     actionDiv.appendChild(swordslash)
+
+    const mightyRoar = document.createElement("button") as HTMLButtonElement
+    mightyRoar.innerHTML = "Warrior's roar"
+    mightyRoar.id = "mightyRoarbtn"
+    mightyRoar.onclick = mightyRoarBtnPressed
+    actionDiv.appendChild(mightyRoar)
 
     const cancel = document.createElement("button") as HTMLButtonElement
     cancel.innerHTML = "Cancel"
@@ -173,6 +219,12 @@ function swordSlashBtnPressed() {
     targetDiv.appendChild(cancelBtn)
 } 
 
+function mightyRoarBtnPressed() {
+    warriorAct = () => warrior1.mightyRoar()
+    warriorTarg = new enemy
+    actCancelBtnPressed()
+}
+
 function BardBtnPressed() {
     actCancelBtnPressed()
     selectCancelBtnPressed()
@@ -191,9 +243,7 @@ function BardBtnPressed() {
 }
 
 function healingMelodyBtnPressed() {
-    for (var heroe of heroes) {
-        heroe.heal(30)
-    }
+    bardAct = (heroes: hero[]) => bard1.healingMelody(heroes)
     actCancelBtnPressed()
 }
 console.log(enemies);

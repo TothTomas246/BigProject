@@ -22,10 +22,14 @@ class hero {
         }
     }
     damage(damageamount) {
-        this.hp -= damageamount-((damageamount/100)*this.shield);
+        this.hp -= damageamount-Math.ceil((damageamount)*this.shield/100);
         if (this.hp <= 0) {
-            console.log(this.name+" dead") //eště domyslim nějak
+            //this = null
         }
+    }
+
+    Attack() {
+
     }
 }
 class enemy {
@@ -35,6 +39,17 @@ class enemy {
     pos = -1;
     name = "";
     attackcounter = 1
+    shield = 0
+    heal(ammounToHeal) {
+        this.hp += ammounToHeal
+        if (this.hp> this.maxhp) {
+            this.hp = this.maxhp
+        }
+    }
+
+    damage() {
+    }
+
     constructor(hp, atk, pos) {
         this.hp = hp;
         this.maxhp = hp;
@@ -54,8 +69,22 @@ class mage extends hero {
         this.maxmana = mana;
     }
     fireball(enemy) {
-        enemy.hp -= this.atk;
         this.mana -= 30;
+        enemy.hp -= this.atk/2-Math.ceil((this.atk/2)*(enemy.shield/100));
+        var targEnPos = enemy.pos-1
+        for (var i = -1; i<=1; i++) {
+            var targEnemyNear=enemies[targEnPos+i]
+            if (targEnemyNear!=null) {
+                targEnemyNear.hp -= this.atk/2-Math.ceil((this.atk/2)*(enemy.shield/100));
+                if (targEnemyNear.hp <= 0) {
+                    enemies[targEnPos+i] = null
+                }
+            }
+        }
+    }
+    lightningStrike(enemy) {
+        this.mana -= 20;
+        enemy.hp -= this.atk-Math.ceil((this.atk)*(enemy.shield/100));
         if (enemy.hp <= 0) {
             var posi = enemy.pos;
             enemies[posi - 1] = null;
@@ -66,12 +95,22 @@ class warrior extends hero {
     constructor(hp, atk, name, shield, pos) {
         super(hp, atk, shield, name, pos);
     }
+    roarActive = false
     swordslash(enemy) {
-        enemy.hp -= this.atk
+        if (this.roarActive) {
+            this.roarActive = false;
+            enemy.hp-=this.atk*2.5-Math.ceil((this.atk*2.5)*(enemy.shield/100))
+        } else {
+            enemy.hp-=this.atk-Math.ceil((this.atk)*(enemy.shield/100))
+        }
         if (enemy.hp<=0) {
             var posi = enemy.pos;
             enemies[posi - 1] = null;
         }
+    }
+    mightyRoar() {
+        this.roarActive=true
+        console.log("raahh")
     }
 }
 
@@ -83,21 +122,21 @@ class bard extends hero {
     healingMelody(groupToHeal) {
         for (var heroe of groupToHeal) {
             heroe.hp += 30
-            if (heroe.hp>maxhp) {
-                heroe.hp = maxhp
+            if (heroe.hp>heroe.maxhp) {
+                heroe.hp = heroe.maxhp
             }
         }
     }
 }
 class goomba extends enemy {
     constructor(hp, atk, pos) {
-        super(hp, atk, pos);
+        super(100, 30, pos);
         this.name = "Goomba";
     }
 
     Attack() {
         var choice = Math.floor(Math.random()*2.999)
         var chosen = heroes[choice]
-        chosen.damage(20)
+        chosen.damage(this.atk)
     }
 }

@@ -17,6 +17,7 @@ var mageTarg = null;
 var warriorTarg = null;
 var bardTarg = null;
 var turncounter = 1;
+var wave = 1;
 //pause funkce kterou jsem si půjčil z internetu
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
@@ -26,21 +27,27 @@ async function newturn() {
     turncounter += 1;
     console.log(enemies);
     console.log(heroes);
-    const mageBtn = document.createElement("button");
-    mageBtn.innerHTML = "Mage";
-    mageBtn.onclick = MageBtnPressed;
-    mageBtn.id = "MageActBtn";
-    characterDiv.appendChild(mageBtn);
-    const warriorBtn = document.createElement("button");
-    warriorBtn.innerHTML = "Warrior";
-    warriorBtn.onclick = WarriorBtnPressed;
-    warriorBtn.id = "MageActBtn";
-    characterDiv.appendChild(warriorBtn);
-    const bardBtn = document.createElement("button");
-    bardBtn.innerHTML = "Bard";
-    bardBtn.onclick = BardBtnPressed;
-    bardBtn.id = "BardActBtn";
-    characterDiv.appendChild(bardBtn);
+    if (mage1 != null) {
+        const mageBtn = document.createElement("button");
+        mageBtn.innerHTML = "Mage";
+        mageBtn.onclick = MageBtnPressed;
+        mageBtn.id = "MageActBtn";
+        characterDiv.appendChild(mageBtn);
+    }
+    if (warrior1 != null) {
+        const warriorBtn = document.createElement("button");
+        warriorBtn.innerHTML = "Warrior";
+        warriorBtn.onclick = WarriorBtnPressed;
+        warriorBtn.id = "MageActBtn";
+        characterDiv.appendChild(warriorBtn);
+    }
+    if (bard1 != null) {
+        const bardBtn = document.createElement("button");
+        bardBtn.innerHTML = "Bard";
+        bardBtn.onclick = BardBtnPressed;
+        bardBtn.id = "BardActBtn";
+        characterDiv.appendChild(bardBtn);
+    }
     const endTurnBtn = document.createElement("button");
     endTurnBtn.innerHTML = "Finish Turn";
     endTurnBtn.onclick = TurnFinishpressed;
@@ -60,8 +67,8 @@ function selectCancelBtnPressed() {
     }
 }
 function TurnFinishpressed() {
-    if (bardAct !== null && bardTarg !== null) {
-        bardAct(bardTarg);
+    if (bardAct !== null) {
+        bardAct(heroes);
     }
     bardAct = null;
     if (mageAct !== null && mageTarg !== null) {
@@ -88,11 +95,20 @@ function TurnFinishpressed() {
 function MageBtnPressed() {
     actCancelBtnPressed();
     selectCancelBtnPressed();
-    const fireball = document.createElement("button");
-    fireball.innerHTML = "fireball";
-    fireball.id = "fireballBtn";
-    fireball.onclick = fireballBtnPressed;
-    actionDiv.appendChild(fireball);
+    if (mage1.mana >= 30) {
+        const fireball = document.createElement("button");
+        fireball.innerHTML = "fireball";
+        fireball.id = "fireballBtn";
+        fireball.onclick = fireballBtnPressed;
+        actionDiv.appendChild(fireball);
+    }
+    if (mage1.mana >= 20) {
+        const lightningStrike = document.createElement("button");
+        lightningStrike.innerHTML = "Lightning Strike";
+        lightningStrike.id = "lightningStrikeBtn";
+        lightningStrike.onclick = lightningStrikeBtnPressed;
+        actionDiv.appendChild(lightningStrike);
+    }
     const cancel = document.createElement("button");
     cancel.innerHTML = "Cancel";
     cancel.id = "cancelBtn";
@@ -122,6 +138,29 @@ function fireballBtnPressed() {
     cancelBtn.onclick = selectCancelBtnPressed;
     targetDiv.appendChild(cancelBtn);
 }
+function lightningStrikeBtnPressed() {
+    for (let slot in enemies) {
+        if (enemies[slot] == null) {
+        }
+        else {
+            const enemySelect = document.createElement("button");
+            enemySelect.innerHTML = enemies[slot].name;
+            enemySelect.id = "EnemyPos" + String(enemies[slot].pos);
+            targetDiv.appendChild(enemySelect);
+            enemySelect.addEventListener("click", (event) => {
+                var selectedEnemyPos = Number(enemySelect.id[enemySelect.id.length - 1]);
+                mageAct = (enemy) => mage1.lightningStrike(enemy);
+                mageTarg = enemies[selectedEnemyPos - 1];
+                actCancelBtnPressed();
+                selectCancelBtnPressed();
+            });
+        }
+    }
+    const cancelBtn = document.createElement("button");
+    cancelBtn.innerHTML = "Cancel";
+    cancelBtn.onclick = selectCancelBtnPressed;
+    targetDiv.appendChild(cancelBtn);
+}
 function WarriorBtnPressed() {
     actCancelBtnPressed();
     selectCancelBtnPressed();
@@ -130,6 +169,11 @@ function WarriorBtnPressed() {
     swordslash.id = "swordSlashbtn";
     swordslash.onclick = swordSlashBtnPressed;
     actionDiv.appendChild(swordslash);
+    const mightyRoar = document.createElement("button");
+    mightyRoar.innerHTML = "Warrior's roar";
+    mightyRoar.id = "mightyRoarbtn";
+    mightyRoar.onclick = mightyRoarBtnPressed;
+    actionDiv.appendChild(mightyRoar);
     const cancel = document.createElement("button");
     cancel.innerHTML = "Cancel";
     cancel.id = "cancelBtn";
@@ -159,6 +203,11 @@ function swordSlashBtnPressed() {
     cancelBtn.onclick = selectCancelBtnPressed;
     targetDiv.appendChild(cancelBtn);
 }
+function mightyRoarBtnPressed() {
+    warriorAct = () => warrior1.mightyRoar();
+    warriorTarg = new enemy;
+    actCancelBtnPressed();
+}
 function BardBtnPressed() {
     actCancelBtnPressed();
     selectCancelBtnPressed();
@@ -174,9 +223,7 @@ function BardBtnPressed() {
     actionDiv.appendChild(cancel);
 }
 function healingMelodyBtnPressed() {
-    for (var heroe of heroes) {
-        heroe.heal(30);
-    }
+    bardAct = (heroes) => bard1.healingMelody(heroes);
     actCancelBtnPressed();
 }
 console.log(enemies);
