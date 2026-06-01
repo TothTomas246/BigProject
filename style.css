@@ -1,0 +1,13 @@
+#Stats {
+    display: flex;
+    gap: 16px; 
+    width: 50%;
+  }
+  
+#Stats > div {
+    flex: 1; 
+  }
+
+.characterStats {
+    margin:20px;
+}
