@@ -3,6 +3,7 @@ const characterDiv = document.getElementById("characters") as HTMLDivElement;
 const actionDiv = document.getElementById("actions") as HTMLDivElement; 
 const targetDiv = document.getElementById("targets") as HTMLDivElement;
 const StartBtn = document.getElementById("startBtn") as HTMLButtonElement;
+var thingymabobDiv:HTMLElement
 
 var mage1:mage 
 var warrior1:warrior 
@@ -10,19 +11,26 @@ var bard1:bard
 heroes = []
 
 //deklarace všech statistik v HTML
-var MageNameHtml
-var MageHpHtml
-var MageManaHtml
-var WarriorNameHtml
-var WarriorHpHtml
-var BardNameHtml
-var BardHpHtml
-var enemy1NameHtml
-var enemy1HpHtml
-var enemy2NameHtml
-var enemy2HpHtml
-var enemy3NameHtml
-var enemy3HpHtml
+var MageNameHtml: HTMLDivElement
+var MageHpHtml: HTMLDivElement
+var MageManaHtml: HTMLDivElement
+var WarriorNameHtml: HTMLDivElement
+var WarriorHpHtml: HTMLDivElement
+var BardNameHtml: HTMLDivElement
+var BardHpHtml: HTMLDivElement
+var enemy1NameHtml: HTMLDivElement
+var enemy1HpHtml: HTMLDivElement
+var enemy2NameHtml: HTMLDivElement
+var enemy2HpHtml: HTMLDivElement
+var enemy3NameHtml: HTMLDivElement
+var enemy3HpHtml: HTMLDivElement
+
+var mageActionDiv: HTMLDivElement | null = null
+var mageTargetDiv: HTMLDivElement | null = null
+var warriorActionDiv: HTMLDivElement | null = null
+var warriorTargetDiv: HTMLDivElement | null = null
+var bardActionDiv: HTMLDivElement | null = null
+var bardTargetDiv: HTMLDivElement | null = null
 
 //interní vypsání nepřátelů na každou vlnu (w1s1 = wave 1 slot 1)
 var w1s1 = new goomba(1)
@@ -104,9 +112,7 @@ function start() {
         return
     }
 
-    const thing = document.getElementById("continueBtn") as HTMLButtonElement
-    thing.remove()
-
+ 
     mage1 = new mage(80, 60, String(mageInp.value), 100, 0, 1)
     warrior1 = new warrior(100, 50, String(warriorInp.value), 25, 2)
     bard1 = new bard(70, 20, String(bardInp.value), 0, 3)
@@ -115,30 +121,6 @@ function start() {
     charCancelBtnPressed()
     actCancelBtnPressed()
     selectCancelBtnPressed()
-
-    const mageBtn = document.createElement("button") as HTMLButtonElement
-    mageBtn.innerHTML = "Mage"
-    mageBtn.onclick = () => MageBtnPressed()
-    mageBtn.id = "MageActBtn"
-    characterDiv.appendChild(mageBtn)
-        
-    const warriorBtn = document.createElement("button") as HTMLButtonElement
-    warriorBtn.innerHTML = "Warrior"
-    warriorBtn.onclick = () => WarriorBtnPressed()
-    warriorBtn.id = "WarriorActBtn"
-    characterDiv.appendChild(warriorBtn)
-
-    const bardBtn = document.createElement("button") as HTMLButtonElement
-    bardBtn.innerHTML = "Bard"
-    bardBtn.onclick = () => BardBtnPressed()
-    bardBtn.id = "BardActBtn"
-    characterDiv.appendChild(bardBtn)
-
-    const endTurnBtn = document.createElement("button") as HTMLButtonElement
-    endTurnBtn.innerHTML = "Finish Turn"
-    endTurnBtn.onclick = () => TurnFinishpressed()
-    endTurnBtn.id = "TurnFinish"
-    characterDiv.appendChild(endTurnBtn)
 
     // CREATE STATS ELEMENTS INSTEAD OF USING innerHTML +=
     const statsDiv = document.createElement("div")
@@ -151,9 +133,12 @@ function start() {
     mageStats.className = "characterStats"
     mageStats.id = "MageStats"
     mageStats.innerHTML = `
+        <img src="img/MagePlaceholder.jpg" id="MageImg" class="heroImage" width="100px">
         <div id="MageName"></div>
         <div id="MageHp"></div>
         <div id="MageMana"></div>
+        <div id="MageActionArea" class="heroActionArea"></div>
+        <div id="MageTargetArea" class="heroTargetArea"></div>
     `
     characterStats.appendChild(mageStats)
 
@@ -161,8 +146,11 @@ function start() {
     warriorStats.className = "characterStats"
     warriorStats.id = "WarriorStats"
     warriorStats.innerHTML = `
+        <img src="img/WarriorPlaceholder.png" id="WarriorImg" class="heroImage" width="100px">
         <div id="WarriorName"></div>
         <div id="WarriorHp"></div>
+        <div id="WarriorActionArea" class="heroActionArea"></div>
+        <div id="WarriorTargetArea" class="heroTargetArea"></div>
     `
     characterStats.appendChild(warriorStats)
 
@@ -170,8 +158,11 @@ function start() {
     bardStats.className = "characterStats"
     bardStats.id = "BardStats"
     bardStats.innerHTML = `
+        <img src="img/BardPlaceholder.png" id="BardImg" class="heroImage" width="100px">
         <div id="BardName"></div>
         <div id="BardHp"></div>
+        <div id="BardActionArea" class="heroActionArea"></div>
+        <div id="BardTargetArea" class="heroTargetArea"></div>
     `
     characterStats.appendChild(bardStats)
 
@@ -184,6 +175,7 @@ function start() {
     const enemy1Stats = document.createElement("div")
     enemy1Stats.id = "enemy1Stats"
     enemy1Stats.innerHTML = `
+        <image id="Enemy1Img" Width=100px>
         <div id="enemy1Name"></div>
         <div id="enemy1HP"></div>
     `
@@ -193,6 +185,7 @@ function start() {
     enemy2Stats.className = "characterStats"
     enemy2Stats.id = "enemy2Stats"
     enemy2Stats.innerHTML = `
+        <image id="Enemy2Img" Width=100px>
         <div id="enemy2Name"></div>
         <div id="enemy2HP"></div>
     `
@@ -202,6 +195,7 @@ function start() {
     enemy3Stats.className = "characterStats"
     enemy3Stats.id = "enemy3Stats"
     enemy3Stats.innerHTML = `
+        <image id="Enemy3Img" Width=100px>
         <div id="enemy3Name"></div>
         <div id="enemy3HP"></div>
     `
@@ -209,6 +203,20 @@ function start() {
 
     statsDiv.appendChild(enemyStats)
     document.body.appendChild(statsDiv)
+
+    mageActionDiv = document.getElementById("MageActionArea") as HTMLDivElement
+    mageTargetDiv = document.getElementById("MageTargetArea") as HTMLDivElement
+    warriorActionDiv = document.getElementById("WarriorActionArea") as HTMLDivElement
+    warriorTargetDiv = document.getElementById("WarriorTargetArea") as HTMLDivElement
+    bardActionDiv = document.getElementById("BardActionArea") as HTMLDivElement
+    bardTargetDiv = document.getElementById("BardTargetArea") as HTMLDivElement
+
+    const mageImg = document.getElementById("MageImg") as HTMLImageElement
+    const warriorImg = document.getElementById("WarriorImg") as HTMLImageElement
+    const bardImg = document.getElementById("BardImg") as HTMLImageElement
+    mageImg.addEventListener("click", MageBtnPressed)
+    warriorImg.addEventListener("click", WarriorBtnPressed)
+    bardImg.addEventListener("click", BardBtnPressed)
 
     MageNameHtml = document.getElementById("MageName") as HTMLDivElement
     MageHpHtml = document.getElementById("MageHp") as HTMLDivElement
@@ -223,6 +231,16 @@ function start() {
     enemy2HpHtml = document.getElementById("enemy2HP") as HTMLDivElement
     enemy3NameHtml = document.getElementById("enemy3Name") as HTMLDivElement
     enemy3HpHtml = document.getElementById("enemy3HP") as HTMLDivElement
+
+    const thingymabob = document.createElement("div")
+    document.body.appendChild(thingymabob)
+    thingymabob.id="Thingymabob"
+    const endTurnBtn = document.createElement("button") as HTMLButtonElement
+    endTurnBtn.innerHTML = "Finish Turn"
+    endTurnBtn.onclick = () => TurnFinishpressed()
+    endTurnBtn.id = "TurnFinish"
+    thingymabob.appendChild(endTurnBtn)
+
 
     updateHtmlStats()
     console.log(enemies);
@@ -247,13 +265,17 @@ function updateHtmlStats() {
     BardNameHtml.innerHTML = bard1.name
     BardHpHtml.innerHTML = "HP: "+String(bard1.hp)+" / "+String(bard1.maxhp)
 
+    const enemy1ImgHtml = document.getElementById("Enemy1Img") as HTMLImageElement
+    const enemy2ImgHtml = document.getElementById("Enemy2Img") as HTMLImageElement
+    const enemy3ImgHtml = document.getElementById("Enemy3Img") as HTMLImageElement
+
     if (mage1.dead) {MageNameHtml.innerHTML+=" (Dead)"}
     if (warrior1.dead) {WarriorNameHtml.innerHTML+=" (Dead)"}
     if (bard1.dead) {BardNameHtml.innerHTML+=" (Dead)"}
 
-    if (enemies[0]!=null) {enemy1NameHtml.innerHTML=enemies[0].name; enemy1HpHtml.innerHTML="HP: "+String(enemies[0].hp)+" / "+String(enemies[0].maxhp)} else {enemy1NameHtml.innerHTML=""; enemy1HpHtml.innerHTML=""}
-    if (enemies[1]!=null) {enemy2NameHtml.innerHTML=enemies[1].name; enemy2HpHtml.innerHTML="HP: "+String(enemies[1].hp)+" / "+String(enemies[1].maxhp)} else {enemy2NameHtml.innerHTML=""; enemy2HpHtml.innerHTML=""}
-    if (enemies[2]!=null) {enemy3NameHtml.innerHTML=enemies[2].name; enemy3HpHtml.innerHTML="HP: "+String(enemies[2].hp)+" / "+String(enemies[2].maxhp)} else {enemy3NameHtml.innerHTML=""; enemy3HpHtml.innerHTML=""}
+    if (enemies[0]!=null) {enemy1NameHtml.innerHTML=enemies[0].name; enemy1HpHtml.innerHTML="HP: "+String(enemies[0].hp)+" / "+String(enemies[0].maxhp);enemy1ImgHtml.src = String("img/EnemySprites/"+enemies[0].name+".jpg")} else {enemy1NameHtml.innerHTML=""; enemy1HpHtml.innerHTML=""; enemy1ImgHtml.src=""}
+    if (enemies[1]!=null) {enemy2NameHtml.innerHTML=enemies[1].name; enemy2HpHtml.innerHTML="HP: "+String(enemies[1].hp)+" / "+String(enemies[1].maxhp);enemy2ImgHtml.src = String("img/EnemySprites/"+enemies[1].name+".jpg")} else {enemy2NameHtml.innerHTML=""; enemy2HpHtml.innerHTML=""; enemy2ImgHtml.src=""}
+    if (enemies[2]!=null) {enemy3NameHtml.innerHTML=enemies[2].name; enemy3HpHtml.innerHTML="HP: "+String(enemies[2].hp)+" / "+String(enemies[2].maxhp);enemy3ImgHtml.src = String("img/EnemySprites/"+enemies[2].name+".jpg")} else {enemy3NameHtml.innerHTML=""; enemy3HpHtml.innerHTML=""; enemy3ImgHtml.src=""}
 }
 
 //pause funkce kterou jsem si půjčil z internetu
@@ -282,57 +304,37 @@ async function newturn() {
         console.log(enemies)
         console.log(heroes)
 
-        if (mage1 != null && !mage1.dead) {
-        const mageBtn = document.createElement("button") as HTMLButtonElement
-        mageBtn.innerHTML = "Mage"
-        mageBtn.onclick = MageBtnPressed
-        mageBtn.id = "MageActBtn"
-        characterDiv.appendChild(mageBtn)
-        }
-
-        if (warrior1 != null && !warrior1.dead) {
-        const warriorBtn = document.createElement("button") as HTMLButtonElement
-        warriorBtn.innerHTML = "Warrior"
-        warriorBtn.onclick = WarriorBtnPressed
-        warriorBtn.id = "MageActBtn"
-        characterDiv.appendChild(warriorBtn)
-        }
-
-        if (bard1 != null && !bard1.dead) {
-        const bardBtn = document.createElement("button") as HTMLButtonElement
-        bardBtn.innerHTML = "Bard"
-        bardBtn.onclick = BardBtnPressed
-        bardBtn.id = "BardActBtn"
-        characterDiv.appendChild(bardBtn)
-        }
-
-        const endTurnBtn = document.createElement("button") as HTMLButtonElement
-        endTurnBtn.innerHTML = "Finish Turn"
-        endTurnBtn.onclick = TurnFinishpressed
-        endTurnBtn.id = "TurnFinish"
-        characterDiv.appendChild(endTurnBtn)
-        
         updateHtmlStats()
 }
 
+
 //mazání tlačítek na vybrání akce
 function actCancelBtnPressed() {
-    const children = Array.from(actionDiv.children);
-    for (let object of children) {
-        object.remove();
+    const areas = [mageActionDiv, warriorActionDiv, bardActionDiv, actionDiv]
+    for (let area of areas) {
+        if (!area) { continue }
+        Array.from(area.children).forEach(child => child.remove())
     }
 }
 
 //mazání tlačítek na vybrání cíle
 function selectCancelBtnPressed() {
-    const children = Array.from(targetDiv.children);
-    for (let object of children) {
-        object.remove();
+    const areas = [mageTargetDiv, warriorTargetDiv, bardTargetDiv, targetDiv]
+    for (let area of areas) {
+        if (!area) { continue }
+        Array.from(area.children).forEach(child => child.remove())
     }
 }
 
 //mazání tlačítek na výběr hrdiny
 function charCancelBtnPressed() {
+    const children = Array.from(characterDiv.children)
+    for (let object of children) {
+        object.remove()
+    }
+}
+
+function thingymabobRemove() {
     const children = Array.from(characterDiv.children)
     for (let object of children) {
         object.remove()
@@ -347,11 +349,20 @@ function TurnFinishpressed() {
     charCancelBtnPressed()
     actCancelBtnPressed()
     selectCancelBtnPressed()
+    const something = document.getElementById("TurnFinish")
+    if (something!=null) {something.remove}
     for (let enemy of enemies) {
         if (enemy != null) {
             enemy.Attack()
         }
     }
+    const thingymabob = document.getElementById("Thingymabob")
+
+    const endTurnBtn = document.createElement("button") as HTMLButtonElement
+        endTurnBtn.innerHTML = "Finish Turn"
+        endTurnBtn.onclick = () => TurnFinishpressed()
+        endTurnBtn.id = "TurnFinish"
+        thingymabob?.appendChild(endTurnBtn)
 
     newturn()
 }
@@ -360,13 +371,14 @@ function TurnFinishpressed() {
 function MageBtnPressed() {
     actCancelBtnPressed()
     selectCancelBtnPressed()
+    if (!mageActionDiv) { return }
 
     if (mage1.mana>=30) {
         const fireball = document.createElement("button") as HTMLButtonElement
         fireball.innerHTML = "Fireball"
         fireball.id = "fireballBtn"
         fireball.onclick = fireballBtnPressed
-        actionDiv.appendChild(fireball)
+        mageActionDiv.appendChild(fireball)
     }
 
     if (mage1.mana>=20) {
@@ -374,14 +386,14 @@ function MageBtnPressed() {
         lightningStrike.innerHTML = "Lightning Strike"
         lightningStrike.id = "lightningStrikeBtn"
         lightningStrike.onclick = lightningStrikeBtnPressed
-        actionDiv.appendChild(lightningStrike)
+        mageActionDiv.appendChild(lightningStrike)
     }
 
     const rechargeMana = document.createElement("button") as HTMLButtonElement
-        rechargeMana.innerHTML = "Recharge Mana"
-        rechargeMana.id = "rechargeManaBtn"
-        rechargeMana.onclick = rechargeManaBtnPressed
-        actionDiv.appendChild(rechargeMana)
+    rechargeMana.innerHTML = "Recharge Mana"
+    rechargeMana.id = "rechargeManaBtn"
+    rechargeMana.onclick = rechargeManaBtnPressed
+    mageActionDiv.appendChild(rechargeMana)
 
     const cancel = document.createElement("button") as HTMLButtonElement
     cancel.innerHTML = "Cancel"
@@ -390,7 +402,7 @@ function MageBtnPressed() {
         actCancelBtnPressed();
         selectCancelBtnPressed();
     }
-    actionDiv.appendChild(cancel)
+    mageActionDiv.appendChild(cancel)
     
 }
 
@@ -402,13 +414,14 @@ function rechargeManaBtnPressed() {
 
 function fireballBtnPressed() {
     selectCancelBtnPressed()
+    if (!mageTargetDiv) { return }
     for (let slot in enemies) {
         if (enemies[slot]==null) {
         } else {
             const enemySelect = document.createElement("button") as HTMLButtonElement
             enemySelect.innerHTML = enemies[slot].name
             enemySelect.id = "EnemyPos"+String(enemies[slot].pos)
-            targetDiv.appendChild(enemySelect)
+            mageTargetDiv.appendChild(enemySelect)
             enemySelect.addEventListener("click", (event: Event) => {
                 var selectedEnemyPos = Number(enemySelect.id[enemySelect.id.length - 1])
                 mageAct = (enemy: enemy) => mage1.fireball(enemy)
@@ -419,20 +432,21 @@ function fireballBtnPressed() {
         }
     }
     const cancelBtn = document.createElement("button") as HTMLButtonElement
-        cancelBtn.innerHTML = "Cancel"
-        cancelBtn.onclick = selectCancelBtnPressed
-        targetDiv.appendChild(cancelBtn)
+    cancelBtn.innerHTML = "Cancel"
+    cancelBtn.onclick = selectCancelBtnPressed
+    mageTargetDiv.appendChild(cancelBtn)
 }
 
 function lightningStrikeBtnPressed() {
     selectCancelBtnPressed()
+    if (!mageTargetDiv) { return }
     for (let slot in enemies) {
         if (enemies[slot]==null) {
         } else {
             const enemySelect = document.createElement("button") as HTMLButtonElement
             enemySelect.innerHTML = enemies[slot].name
             enemySelect.id = "EnemyPos"+String(enemies[slot].pos)
-            targetDiv.appendChild(enemySelect)
+            mageTargetDiv.appendChild(enemySelect)
             enemySelect.addEventListener("click", (event: Event) => {
                 var selectedEnemyPos = Number(enemySelect.id[enemySelect.id.length - 1])
                 mageAct = (enemy: enemy) => mage1.lightningStrike(enemy)
@@ -443,26 +457,27 @@ function lightningStrikeBtnPressed() {
         }
     }
     const cancelBtn = document.createElement("button") as HTMLButtonElement
-        cancelBtn.innerHTML = "Cancel"
-        cancelBtn.onclick = selectCancelBtnPressed
-        targetDiv.appendChild(cancelBtn)
+    cancelBtn.innerHTML = "Cancel"
+    cancelBtn.onclick = selectCancelBtnPressed
+    mageTargetDiv.appendChild(cancelBtn)
 }
 
 function WarriorBtnPressed() {
     actCancelBtnPressed()
     selectCancelBtnPressed()
+    if (!warriorActionDiv) { return }
 
     const swordslash = document.createElement("button") as HTMLButtonElement
     swordslash.innerHTML = "Sword Slash"
     swordslash.id = "swordSlashbtn"
     swordslash.onclick = swordSlashBtnPressed
-    actionDiv.appendChild(swordslash)
+    warriorActionDiv.appendChild(swordslash)
 
     const mightyRoar = document.createElement("button") as HTMLButtonElement
     mightyRoar.innerHTML = "Warrior's roar"
     mightyRoar.id = "mightyRoarbtn"
     mightyRoar.onclick = mightyRoarBtnPressed
-    actionDiv.appendChild(mightyRoar)
+    warriorActionDiv.appendChild(mightyRoar)
 
     const cancel = document.createElement("button") as HTMLButtonElement
     cancel.innerHTML = "Cancel"
@@ -471,18 +486,19 @@ function WarriorBtnPressed() {
         actCancelBtnPressed();
         selectCancelBtnPressed();
     }
-    actionDiv.appendChild(cancel)
+    warriorActionDiv.appendChild(cancel)
 }
 
 function swordSlashBtnPressed() {
     selectCancelBtnPressed()
+    if (!warriorTargetDiv) { return }
     for (let slot in enemies) {
         if (enemies[slot]==null) {
         } else {
             const enemySelect = document.createElement("button") as HTMLButtonElement
             enemySelect.innerHTML = enemies[slot].name
             enemySelect.id = "EnemyPos"+String(enemies[slot].pos)
-            targetDiv.appendChild(enemySelect)
+            warriorTargetDiv.appendChild(enemySelect)
             enemySelect.addEventListener("click", (event: Event) => {
                 var selectedEnemyPos = Number(enemySelect.id[enemySelect.id.length - 1])
                 warriorAct = (enemy: enemy) => warrior1.swordslash(enemy)
@@ -493,10 +509,10 @@ function swordSlashBtnPressed() {
         }
     }
 
-     const cancelBtn = document.createElement("button") as HTMLButtonElement
+    const cancelBtn = document.createElement("button") as HTMLButtonElement
     cancelBtn.innerHTML = "Cancel"
     cancelBtn.onclick = selectCancelBtnPressed
-    targetDiv.appendChild(cancelBtn)
+    warriorTargetDiv.appendChild(cancelBtn)
 } 
 
 function mightyRoarBtnPressed() {
@@ -508,12 +524,13 @@ function mightyRoarBtnPressed() {
 function BardBtnPressed() {
     actCancelBtnPressed()
     selectCancelBtnPressed()
+    if (!bardActionDiv) { return }
 
     const healingMelody = document.createElement("button") as HTMLButtonElement
     healingMelody.innerHTML = "Healing Melody"
     healingMelody.id = "healingMelodybtn"
     healingMelody.onclick = healingMelodyBtnPressed
-    actionDiv.appendChild(healingMelody)
+    bardActionDiv.appendChild(healingMelody)
 
     const cancel = document.createElement("button") as HTMLButtonElement
     cancel.innerHTML = "Cancel"
@@ -522,7 +539,7 @@ function BardBtnPressed() {
         actCancelBtnPressed();
         selectCancelBtnPressed();
     }
-    actionDiv.appendChild(cancel)
+    bardActionDiv.appendChild(cancel)
 }
 
 function healingMelodyBtnPressed() {

@@ -11,3 +11,17 @@
 .characterStats {
     margin:20px;
 }
+
+.heroImage {
+    cursor: pointer;
+    border-radius: 12px;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+}
+
+.heroActionArea,
+.heroTargetArea {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}

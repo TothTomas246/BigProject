@@ -122,7 +122,9 @@ class bard extends hero {
     }
     healingMelody(groupToHeal) {
         for (var heroe of groupToHeal) {
-            heroe.heal(30);
+            if (heroe != null) {
+                heroe.heal(30);
+            }
         }
     }
 }

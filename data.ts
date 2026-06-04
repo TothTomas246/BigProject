@@ -1,5 +1,5 @@
-var enemies:enemy[]|null[]|hero[]=[]
-var heroes:hero[]|enemy[] = []
+var enemies:(enemy|null)[] = []
+var heroes:hero[] = []
 
 
 //hrdina
@@ -12,7 +12,7 @@ abstract class hero {
     pos:number = -1;
     attackcounter:number = -1
     dead:boolean = false
-    constructor(hp, atk, shield, name, pos) {
+    constructor(hp:number, atk:number, shield:number, name:string, pos:number) {
         this.maxhp = hp;
         this.hp = hp;
         this.name = name;
@@ -20,13 +20,13 @@ abstract class hero {
         this.shield = shield;
         this.pos = pos;
     }
-    heal(healamount) {
+    heal(healamount:number) {
         this.hp += healamount;
         if (this.hp > this.maxhp) {
             this.hp = this.maxhp;
         }
     }
-    damage(damageamount) {
+    damage(damageamount:number) {
         this.hp -= damageamount-Math.ceil((damageamount)*this.shield/100);
         if (this.hp <= 0) {
             this.hp = 0
@@ -49,14 +49,14 @@ abstract class enemy {
     attackcounter:number = 1
     shield:number = 0
     dead:boolean = false
-    heal(ammounToHeal) {
+    heal(ammounToHeal:number) {
         this.hp += ammounToHeal
         if (this.hp> this.maxhp) {
             this.hp = this.maxhp
         }
     }
 
-    damage(damageamount) {
+    damage(damageamount:number) {
         this.hp -= damageamount-Math.ceil((damageamount)*this.shield/100);
         if (this.hp <= 0) {
             var curpos = this.pos
@@ -64,25 +64,25 @@ abstract class enemy {
         }
     }
 
-    constructor(hp, atk, pos) {
+    constructor(hp:number, atk:number, pos:number) {
         this.hp = hp;
         this.maxhp = hp;
         this.atk = atk;
         this.pos = pos;
     }
-    abstract Attack()
+    abstract Attack():any
 }
 
 //typy hrdin
 class mage extends hero {
     mana:number = -1;
     maxmana:number = -1;
-    constructor(hp, atk, name, mana, shield, pos) {
+    constructor(hp:number, atk:number, name:string, mana:number, shield:number, pos:number) {
         super(hp, atk, shield, name, pos);
         this.mana = mana;
         this.maxmana = mana;
     }
-    fireball(enemy) {
+    fireball(enemy:enemy) {
         this.mana -= 30;
         enemy.damage(this.atk/2)
         var targEnPos = enemy.pos-1
@@ -93,7 +93,7 @@ class mage extends hero {
             }
         }
     }
-    lightningStrike(enemy) {
+    lightningStrike(enemy:enemy) {
         this.mana -= 20;
         enemy.damage(this.atk)
     }
@@ -102,11 +102,11 @@ class mage extends hero {
     }
 }
 class warrior extends hero {
-    constructor(hp, atk, name, shield, pos) {
+    constructor(hp:number, atk:number, name:string, shield:number, pos:number) {
         super(hp, atk, shield, name, pos);
     }
     roarActive = false
-    swordslash(enemy) {
+    swordslash(enemy:enemy) {
         if (this.roarActive) {
             this.roarActive = false;
             enemy.damage(this.atk*2.5)
@@ -124,19 +124,21 @@ class warrior extends hero {
     }
 }
 class bard extends hero {
-    constructor(hp, atk, name, shield, pos) {
+    constructor(hp:number, atk:number, name:string, shield:number, pos:number) {
         super(hp, atk, shield, name, pos);
     }
-    healingMelody(groupToHeal) {
+    healingMelody(groupToHeal:(hero|null)[]) {
         for (var heroe of groupToHeal) {
-            heroe.heal(30)
+            if (heroe != null) {
+                heroe.heal(30)
+            }
         }
     }
 }
 
 //typy záporáků
 class goomba extends enemy {
-    constructor(pos) {
+    constructor(pos:number) {
         super(100, 30, pos);
         this.name = "Goomba";
     }
@@ -151,7 +153,7 @@ class goomba extends enemy {
     }
 }
 class koopa extends enemy {
-    constructor(pos) {
+    constructor(pos:number) {
         super(150, 30, pos);
         this.name = "Koopa";
     }
