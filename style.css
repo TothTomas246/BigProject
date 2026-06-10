@@ -1,27 +1,295 @@
-#Stats {
-    display: flex;
-    gap: 16px; 
-    width: 50%;
-  }
-  
-#Stats > div {
-    flex: 1; 
-  }
-
-.characterStats {
-    margin:20px;
+html,
+body {
+    min-height: 100%;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
-.heroImage {
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    gap: 20px;
+    text-align: center;
+    background: url("img/Background.png") center center / cover no-repeat fixed;
+    color: #e8f7ff;
+    font-family: "Press Start 2P", sans-serif;
+}
+
+#technical,
+#characters,
+#actions,
+#targets {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+#characters {
+    width: min(90%, 760px);
+    max-width: 760px;
+}
+
+body.name-select #technical,
+body.name-select #characters,
+body.name-select #actions,
+body.name-select #targets {
+    width: min(90%, 640px);
+    max-width: 640px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding: 18px 20px;
+    border: 2px solid #22d1ff;
+    border-radius: 6px;
+    background: rgba(5, 15, 30, 0.95);
+    box-shadow: 0 0 0 3px rgba(0, 255, 255, 0.08), 0 18px 30px rgba(0, 0, 0, 0.35);
+}
+
+body.name-select #technical {
+    padding-top: 24px;
+}
+
+body.name-select #characters label,
+body.name-select #actions label,
+body.name-select #targets label {
+    display: block;
+    width: 100%;
+    max-width: 420px;
+    margin-bottom: 8px;
+    padding: 10px 12px;
+    border: 2px solid #22d1ff;
+    border-radius: 4px;
+    background: rgba(4, 14, 30, 0.95);
+    color: #9df2ff;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    text-align: left;
+}
+
+body.name-select #characters input,
+body.name-select #actions input,
+body.name-select #targets input {
+    width: 100%;
+    max-width: 420px;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    border: 3px solid #22d1ff;
+    border-radius: 4px;
+    background: #081528;
+    color: #e8f7ff;
+    font-family: inherit;
+    font-size: 0.9rem;
+    outline: none;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.1);
+}
+
+body.name-select #characters input:focus,
+body.name-select #actions input:focus,
+body.name-select #targets input:focus {
+    border-color: #8ff7ff;
+    box-shadow: 0 0 0 4px rgba(34, 209, 255, 0.16);
+}
+
+#startBtn,
+#continueBtn,
+button {
+    width: min(220px, 80%);
+    padding: 14px 18px;
+    border: 3px solid #22d1ff;
+    border-radius: 6px;
+    background: linear-gradient(180deg, #0c3a62 0%, #071b31 100%);
+    color: #d7ffff;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 0.85rem;
     cursor: pointer;
-    border-radius: 12px;
+    box-shadow: 0 0 0 3px rgba(34, 209, 255, 0.12), inset 0 1px 0 rgba(255,255,255,0.2);
+}
+
+#actions button,
+#targets button,
+.heroActionArea button,
+.heroTargetArea button {
+    all: unset;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    min-width: 0;
+    padding: 6px 10px;
+    font: inherit;
+    color: inherit;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-transform: none;
+}
+
+#actions button:hover,
+#targets button:hover,
+.heroActionArea button:hover,
+.heroTargetArea button:hover {
+    background: rgba(255,255,255,0.08);
+}
+
+#actions button:active,
+#targets button:active,
+.heroActionArea button:active,
+.heroTargetArea button:active {
+    transform: none;
+}
+
+#startBtn:hover,
+#continueBtn:hover,
+button:hover {
+    background: linear-gradient(180deg, #1b5ea5 0%, #08264a 100%);
+}
+
+#startBtn:active,
+#continueBtn:active,
+button:active {
+    transform: translateY(1px);
+}
+
+#Stats {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+    padding: 0 25vw;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+#Stats > div {
+    flex: 0 0 auto;
+}
+
+.characterStats {
+    margin: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 440px;
+    min-width: 440px;
+    flex-shrink: 0;
+}
+
+.characterStats > img {
+    margin-bottom: 8px;
+}
+
+.actionTargetBox {
+    width: 100%;
+    min-width: 420px;
+    min-height: 88px;
+    background: rgba(8, 14, 28, 0.94);
+    border: 1px solid rgba(62, 149, 255, 0.22);
+    border-radius: 6px;
+    padding: 10px;
+    margin-top: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.actionTargetBox + .actionTargetBox {
+    margin-top: 6px;
+}
+
+.statBox {
+    width: auto;
+    min-width: min-content;
+    background: rgba(10, 16, 28, 0.95);
+    border: 1px solid rgba(62, 149, 255, 0.22);
+    padding: 6px 10px 4px;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.statBox > div {
+    margin: 0;
+}
+
+.heroImage,
+#Enemy1Img,
+#Enemy2Img,
+#Enemy3Img {
+    cursor: pointer;
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    background: #fff;
+    border-radius: 4px;
     border: 2px solid rgba(255, 255, 255, 0.15);
+    outline: 2px solid rgba(0, 0, 0, 0.4);
+    box-sizing: border-box;
+    display: inline-block;
+    padding: 4px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.actionTargetBox {
+    width: 100%;
+    min-height: 0;
+    background: rgba(8, 14, 28, 0.94);
+    border: 1px solid rgba(62, 149, 255, 0.22);
+    border-radius: 12px;
+    padding: 10px;
+    margin-top: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.18);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
 .heroActionArea,
 .heroTargetArea {
     display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 12px;
+    flex-wrap: nowrap;
+    gap: 6px;
+    justify-content: center;
+    align-items: center;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+.heroActionArea button,
+.heroTargetArea button {
+    flex-shrink: 0;
+}
+
+.descriptionBox {
+    width: min(640px, 90vw);
+    min-height: 64px;
+    margin: 0 auto;
+    padding: 12px 14px;
+    border: 2px solid rgba(34, 209, 255, 0.4);
+    border-radius: 6px;
+    background: rgba(3, 9, 22, 0.95);
+    color: #d7f8ff;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    text-align: left;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
 }

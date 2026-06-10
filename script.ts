@@ -4,11 +4,22 @@ const actionDiv = document.getElementById("actions") as HTMLDivElement;
 const targetDiv = document.getElementById("targets") as HTMLDivElement;
 const StartBtn = document.getElementById("startBtn") as HTMLButtonElement;
 var thingymabobDiv:HTMLElement
+var descriptionBox: HTMLDivElement | null = null
 
 var mage1:mage 
 var warrior1:warrior 
 var bard1:bard 
 heroes = []
+
+function setDescription(text: string) {
+    if (!descriptionBox) { return }
+    descriptionBox.textContent = text
+}
+
+function attachDescription(button: HTMLButtonElement, description: string) {
+    button.addEventListener("mouseenter", () => setDescription(description))
+    button.addEventListener("mouseleave", () => setDescription("Hover an action for details"))
+}
 
 //deklarace všech statistik v HTML
 var MageNameHtml: HTMLDivElement
@@ -97,11 +108,14 @@ function nameInputSequence() {
     targetDiv.appendChild(bardLabel)
     targetDiv.appendChild(bardName)
 
+    document.body.classList.add("name-select")
     StartBtn.remove()
 }
 
 function start() {
     enemies = wave1
+
+    document.getElementById("continueBtn")?.remove()
 
     const mageInp = document.getElementById("mageNameInp") as HTMLInputElement
     const warriorInp = document.getElementById("warriorNameInp") as HTMLInputElement
@@ -112,7 +126,8 @@ function start() {
         return
     }
 
- 
+    document.body.classList.remove("name-select")
+
     mage1 = new mage(80, 60, String(mageInp.value), 100, 0, 1)
     warrior1 = new warrior(100, 50, String(warriorInp.value), 25, 2)
     bard1 = new bard(70, 20, String(bardInp.value), 0, 3)
@@ -134,11 +149,17 @@ function start() {
     mageStats.id = "MageStats"
     mageStats.innerHTML = `
         <img src="img/MagePlaceholder.jpg" id="MageImg" class="heroImage" width="100px">
-        <div id="MageName"></div>
-        <div id="MageHp"></div>
-        <div id="MageMana"></div>
-        <div id="MageActionArea" class="heroActionArea"></div>
-        <div id="MageTargetArea" class="heroTargetArea"></div>
+        <div class="statBox">
+            <div id="MageName"></div>
+            <div id="MageHp"></div>
+            <div id="MageMana"></div>
+        </div>
+        <div class="actionTargetBox">
+            <div id="MageActionArea" class="heroActionArea"></div>
+        </div>
+        <div class="actionTargetBox hidden">
+            <div id="MageTargetArea" class="heroTargetArea"></div>
+        </div>
     `
     characterStats.appendChild(mageStats)
 
@@ -147,10 +168,16 @@ function start() {
     warriorStats.id = "WarriorStats"
     warriorStats.innerHTML = `
         <img src="img/WarriorPlaceholder.png" id="WarriorImg" class="heroImage" width="100px">
-        <div id="WarriorName"></div>
-        <div id="WarriorHp"></div>
-        <div id="WarriorActionArea" class="heroActionArea"></div>
-        <div id="WarriorTargetArea" class="heroTargetArea"></div>
+        <div class="statBox">
+            <div id="WarriorName"></div>
+            <div id="WarriorHp"></div>
+        </div>
+        <div class="actionTargetBox">
+            <div id="WarriorActionArea" class="heroActionArea"></div>
+        </div>
+        <div class="actionTargetBox hidden">
+            <div id="WarriorTargetArea" class="heroTargetArea"></div>
+        </div>
     `
     characterStats.appendChild(warriorStats)
 
@@ -159,10 +186,16 @@ function start() {
     bardStats.id = "BardStats"
     bardStats.innerHTML = `
         <img src="img/BardPlaceholder.png" id="BardImg" class="heroImage" width="100px">
-        <div id="BardName"></div>
-        <div id="BardHp"></div>
-        <div id="BardActionArea" class="heroActionArea"></div>
-        <div id="BardTargetArea" class="heroTargetArea"></div>
+        <div class="statBox">
+            <div id="BardName"></div>
+            <div id="BardHp"></div>
+        </div>
+        <div class="actionTargetBox">
+            <div id="BardActionArea" class="heroActionArea"></div>
+        </div>
+        <div class="actionTargetBox hidden">
+            <div id="BardTargetArea" class="heroTargetArea"></div>
+        </div>
     `
     characterStats.appendChild(bardStats)
 
@@ -173,11 +206,14 @@ function start() {
     enemyStats.id = "enemyStats"
 
     const enemy1Stats = document.createElement("div")
+    enemy1Stats.className = "characterStats"
     enemy1Stats.id = "enemy1Stats"
     enemy1Stats.innerHTML = `
-        <image id="Enemy1Img" Width=100px>
-        <div id="enemy1Name"></div>
-        <div id="enemy1HP"></div>
+        <img id="Enemy1Img" width="100" height="100">
+        <div class="statBox">
+            <div id="enemy1Name"></div>
+            <div id="enemy1HP"></div>
+        </div>
     `
     enemyStats.appendChild(enemy1Stats)
 
@@ -185,9 +221,11 @@ function start() {
     enemy2Stats.className = "characterStats"
     enemy2Stats.id = "enemy2Stats"
     enemy2Stats.innerHTML = `
-        <image id="Enemy2Img" Width=100px>
-        <div id="enemy2Name"></div>
-        <div id="enemy2HP"></div>
+        <img id="Enemy2Img" width="100" height="100">
+        <div class="statBox">
+            <div id="enemy2Name"></div>
+            <div id="enemy2HP"></div>
+        </div>
     `
     enemyStats.appendChild(enemy2Stats)
 
@@ -195,14 +233,16 @@ function start() {
     enemy3Stats.className = "characterStats"
     enemy3Stats.id = "enemy3Stats"
     enemy3Stats.innerHTML = `
-        <image id="Enemy3Img" Width=100px>
-        <div id="enemy3Name"></div>
-        <div id="enemy3HP"></div>
+        <img id="Enemy3Img" width="100" height="100">
+        <div class="statBox">
+            <div id="enemy3Name"></div>
+            <div id="enemy3HP"></div>
+        </div>
     `
     enemyStats.appendChild(enemy3Stats)
 
     statsDiv.appendChild(enemyStats)
-    document.body.appendChild(statsDiv)
+    characterDiv.appendChild(statsDiv)
 
     mageActionDiv = document.getElementById("MageActionArea") as HTMLDivElement
     mageTargetDiv = document.getElementById("MageTargetArea") as HTMLDivElement
@@ -210,6 +250,9 @@ function start() {
     warriorTargetDiv = document.getElementById("WarriorTargetArea") as HTMLDivElement
     bardActionDiv = document.getElementById("BardActionArea") as HTMLDivElement
     bardTargetDiv = document.getElementById("BardTargetArea") as HTMLDivElement
+
+    hideActionBoxes()
+    hideTargetBoxes()
 
     const mageImg = document.getElementById("MageImg") as HTMLImageElement
     const warriorImg = document.getElementById("WarriorImg") as HTMLImageElement
@@ -235,12 +278,18 @@ function start() {
     const thingymabob = document.createElement("div")
     document.body.appendChild(thingymabob)
     thingymabob.id="Thingymabob"
+
     const endTurnBtn = document.createElement("button") as HTMLButtonElement
     endTurnBtn.innerHTML = "Finish Turn"
     endTurnBtn.onclick = () => TurnFinishpressed()
     endTurnBtn.id = "TurnFinish"
     thingymabob.appendChild(endTurnBtn)
 
+    descriptionBox = document.createElement("div") as HTMLDivElement
+    descriptionBox.id = "ActionDescription"
+    descriptionBox.className = "descriptionBox"
+    descriptionBox.textContent = "Hover an action for details"
+    thingymabob.appendChild(descriptionBox)
 
     updateHtmlStats()
     console.log(enemies);
@@ -309,11 +358,46 @@ async function newturn() {
 
 
 //mazání tlačítek na vybrání akce
+function hideActionBoxes() {
+    const areas = [mageActionDiv, warriorActionDiv, bardActionDiv]
+    for (let area of areas) {
+        if (!area) { continue }
+        const wrapper = area.closest(".actionTargetBox") as HTMLDivElement | null
+        wrapper?.classList.add("hidden")
+    }
+}
+
+function hideTargetBoxes() {
+    const areas = [mageTargetDiv, warriorTargetDiv, bardTargetDiv]
+    for (let area of areas) {
+        if (!area) { continue }
+        const wrapper = area.closest(".actionTargetBox") as HTMLDivElement | null
+        wrapper?.classList.add("hidden")
+    }
+}
+
+function showActionBox(area: HTMLDivElement | null) {
+    hideActionBoxes()
+    hideTargetBoxes()
+    if (!area) { return }
+    const wrapper = area.closest(".actionTargetBox") as HTMLDivElement | null
+    wrapper?.classList.remove("hidden")
+}
+
+function showTargetBox(area: HTMLDivElement | null) {
+    hideTargetBoxes()
+    if (!area) { return }
+    const wrapper = area.closest(".actionTargetBox") as HTMLDivElement | null
+    wrapper?.classList.remove("hidden")
+}
+
 function actCancelBtnPressed() {
     const areas = [mageActionDiv, warriorActionDiv, bardActionDiv, actionDiv]
     for (let area of areas) {
         if (!area) { continue }
         Array.from(area.children).forEach(child => child.remove())
+        const wrapper = area.closest(".actionTargetBox") as HTMLDivElement | null
+        wrapper?.classList.add("hidden")
     }
 }
 
@@ -323,6 +407,8 @@ function selectCancelBtnPressed() {
     for (let area of areas) {
         if (!area) { continue }
         Array.from(area.children).forEach(child => child.remove())
+        const wrapper = area.closest(".actionTargetBox") as HTMLDivElement | null
+        wrapper?.classList.add("hidden")
     }
 }
 
@@ -371,6 +457,7 @@ function TurnFinishpressed() {
 function MageBtnPressed() {
     actCancelBtnPressed()
     selectCancelBtnPressed()
+    showActionBox(mageActionDiv)
     if (!mageActionDiv) { return }
 
     if (mage1.mana>=30) {
@@ -378,6 +465,7 @@ function MageBtnPressed() {
         fireball.innerHTML = "Fireball"
         fireball.id = "fireballBtn"
         fireball.onclick = fireballBtnPressed
+        attachDescription(fireball, descriptions.fireball)
         mageActionDiv.appendChild(fireball)
     }
 
@@ -386,6 +474,7 @@ function MageBtnPressed() {
         lightningStrike.innerHTML = "Lightning Strike"
         lightningStrike.id = "lightningStrikeBtn"
         lightningStrike.onclick = lightningStrikeBtnPressed
+        attachDescription(lightningStrike, descriptions.lightningStrike)
         mageActionDiv.appendChild(lightningStrike)
     }
 
@@ -393,6 +482,7 @@ function MageBtnPressed() {
     rechargeMana.innerHTML = "Recharge Mana"
     rechargeMana.id = "rechargeManaBtn"
     rechargeMana.onclick = rechargeManaBtnPressed
+    attachDescription(rechargeMana, descriptions.rechargeMana)
     mageActionDiv.appendChild(rechargeMana)
 
     const cancel = document.createElement("button") as HTMLButtonElement
@@ -403,7 +493,6 @@ function MageBtnPressed() {
         selectCancelBtnPressed();
     }
     mageActionDiv.appendChild(cancel)
-    
 }
 
 function rechargeManaBtnPressed() {
@@ -415,6 +504,7 @@ function rechargeManaBtnPressed() {
 function fireballBtnPressed() {
     selectCancelBtnPressed()
     if (!mageTargetDiv) { return }
+    showTargetBox(mageTargetDiv)
     for (let slot in enemies) {
         if (enemies[slot]==null) {
         } else {
@@ -440,6 +530,7 @@ function fireballBtnPressed() {
 function lightningStrikeBtnPressed() {
     selectCancelBtnPressed()
     if (!mageTargetDiv) { return }
+    showTargetBox(mageTargetDiv)
     for (let slot in enemies) {
         if (enemies[slot]==null) {
         } else {
@@ -465,18 +556,21 @@ function lightningStrikeBtnPressed() {
 function WarriorBtnPressed() {
     actCancelBtnPressed()
     selectCancelBtnPressed()
+    showActionBox(warriorActionDiv)
     if (!warriorActionDiv) { return }
 
     const swordslash = document.createElement("button") as HTMLButtonElement
     swordslash.innerHTML = "Sword Slash"
     swordslash.id = "swordSlashbtn"
     swordslash.onclick = swordSlashBtnPressed
+    attachDescription(swordslash, descriptions.swordSlash)
     warriorActionDiv.appendChild(swordslash)
 
     const mightyRoar = document.createElement("button") as HTMLButtonElement
     mightyRoar.innerHTML = "Warrior's roar"
     mightyRoar.id = "mightyRoarbtn"
     mightyRoar.onclick = mightyRoarBtnPressed
+    attachDescription(mightyRoar, descriptions.mightyRoar)
     warriorActionDiv.appendChild(mightyRoar)
 
     const cancel = document.createElement("button") as HTMLButtonElement
@@ -491,6 +585,8 @@ function WarriorBtnPressed() {
 
 function swordSlashBtnPressed() {
     selectCancelBtnPressed()
+    hideActionBoxes()
+    showTargetBox(warriorTargetDiv)
     if (!warriorTargetDiv) { return }
     for (let slot in enemies) {
         if (enemies[slot]==null) {
@@ -524,12 +620,14 @@ function mightyRoarBtnPressed() {
 function BardBtnPressed() {
     actCancelBtnPressed()
     selectCancelBtnPressed()
+    showActionBox(bardActionDiv)
     if (!bardActionDiv) { return }
 
     const healingMelody = document.createElement("button") as HTMLButtonElement
     healingMelody.innerHTML = "Healing Melody"
     healingMelody.id = "healingMelodybtn"
     healingMelody.onclick = healingMelodyBtnPressed
+    attachDescription(healingMelody, descriptions.healingMelody)
     bardActionDiv.appendChild(healingMelody)
 
     const cancel = document.createElement("button") as HTMLButtonElement

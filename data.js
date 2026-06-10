@@ -157,4 +157,11 @@ class koopa extends enemy {
         this.attackcounter++;
     }
 }
-//logika útočení (např to, že záporák útočí jenom každý sudý tah) bude napsána ve funkci Attack()
+class descriptions {
+    static lightningStrike = "Smites the enemy with the power of the heavens, deals 60 damage and costs 20 mana.";
+    static fireball = "Launches a big ball of flame at the enemy, dealing 60 damage to the target and 30 damage to all adjacent enemies, costs 30 mana";
+    static rechargeMana = "The mage does nothing for a turn, but regains 50 mana";
+    static swordSlash = "Runs up to the enemy and deals 50 damage";
+    static mightyRoar = "The warrior lets out a mighty roar, deals 2.5x damage on the next attack";
+    static healingMelody = "The bard plays a calming melody, healing all allies for 30 hp";
+}
