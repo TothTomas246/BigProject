@@ -99,6 +99,9 @@ class mage extends hero {
     }
     rechargeMana() {
         this.mana+=50
+        if (this.mana>this.maxmana) {
+            this.mana = this.maxmana
+        }
     }
 }
 class warrior extends hero {

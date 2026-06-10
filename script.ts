@@ -5,6 +5,7 @@ const targetDiv = document.getElementById("targets") as HTMLDivElement;
 const StartBtn = document.getElementById("startBtn") as HTMLButtonElement;
 var thingymabobDiv:HTMLElement
 var descriptionBox: HTMLDivElement | null = null
+var finishTurnBtn: HTMLButtonElement | null = null
 
 var mage1:mage 
 var warrior1:warrior 
@@ -279,17 +280,18 @@ function start() {
     document.body.appendChild(thingymabob)
     thingymabob.id="Thingymabob"
 
-    const endTurnBtn = document.createElement("button") as HTMLButtonElement
-    endTurnBtn.innerHTML = "Finish Turn"
-    endTurnBtn.onclick = () => TurnFinishpressed()
-    endTurnBtn.id = "TurnFinish"
-    thingymabob.appendChild(endTurnBtn)
-
     descriptionBox = document.createElement("div") as HTMLDivElement
     descriptionBox.id = "ActionDescription"
     descriptionBox.className = "descriptionBox"
     descriptionBox.textContent = "Hover an action for details"
     thingymabob.appendChild(descriptionBox)
+
+    const endTurnBtn = document.createElement("button") as HTMLButtonElement
+    endTurnBtn.innerHTML = "Finish Turn"
+    endTurnBtn.onclick = () => TurnFinishpressed()
+    endTurnBtn.id = "TurnFinish"
+    finishTurnBtn = endTurnBtn
+    thingymabob.appendChild(endTurnBtn)
 
     updateHtmlStats()
     console.log(enemies);
@@ -317,14 +319,65 @@ function updateHtmlStats() {
     const enemy1ImgHtml = document.getElementById("Enemy1Img") as HTMLImageElement
     const enemy2ImgHtml = document.getElementById("Enemy2Img") as HTMLImageElement
     const enemy3ImgHtml = document.getElementById("Enemy3Img") as HTMLImageElement
+    const enemy1Card = document.getElementById("enemy1Stats") as HTMLDivElement | null
+    const enemy2Card = document.getElementById("enemy2Stats") as HTMLDivElement | null
+    const enemy3Card = document.getElementById("enemy3Stats") as HTMLDivElement | null
 
     if (mage1.dead) {MageNameHtml.innerHTML+=" (Dead)"}
     if (warrior1.dead) {WarriorNameHtml.innerHTML+=" (Dead)"}
     if (bard1.dead) {BardNameHtml.innerHTML+=" (Dead)"}
 
-    if (enemies[0]!=null) {enemy1NameHtml.innerHTML=enemies[0].name; enemy1HpHtml.innerHTML="HP: "+String(enemies[0].hp)+" / "+String(enemies[0].maxhp);enemy1ImgHtml.src = String("img/EnemySprites/"+enemies[0].name+".jpg")} else {enemy1NameHtml.innerHTML=""; enemy1HpHtml.innerHTML=""; enemy1ImgHtml.src=""}
-    if (enemies[1]!=null) {enemy2NameHtml.innerHTML=enemies[1].name; enemy2HpHtml.innerHTML="HP: "+String(enemies[1].hp)+" / "+String(enemies[1].maxhp);enemy2ImgHtml.src = String("img/EnemySprites/"+enemies[1].name+".jpg")} else {enemy2NameHtml.innerHTML=""; enemy2HpHtml.innerHTML=""; enemy2ImgHtml.src=""}
-    if (enemies[2]!=null) {enemy3NameHtml.innerHTML=enemies[2].name; enemy3HpHtml.innerHTML="HP: "+String(enemies[2].hp)+" / "+String(enemies[2].maxhp);enemy3ImgHtml.src = String("img/EnemySprites/"+enemies[2].name+".jpg")} else {enemy3NameHtml.innerHTML=""; enemy3HpHtml.innerHTML=""; enemy3ImgHtml.src=""}
+    if (enemies[0]!=null) {
+        enemy1NameHtml.innerHTML=enemies[0].name;
+        enemy1HpHtml.innerHTML="HP: "+String(enemies[0].hp)+" / "+String(enemies[0].maxhp);
+        enemy1ImgHtml.src = String("img/EnemySprites/"+enemies[0].name+".jpg")
+        if (enemy1Card) {
+            enemy1Card.style.visibility = "visible"
+            enemy1Card.style.opacity = "1"
+        }
+    } else {
+        enemy1NameHtml.innerHTML="";
+        enemy1HpHtml.innerHTML="";
+        enemy1ImgHtml.src="";
+        if (enemy1Card) {
+            enemy1Card.style.visibility = "hidden"
+            enemy1Card.style.opacity = "0"
+        }
+    }
+    if (enemies[1]!=null) {
+        enemy2NameHtml.innerHTML=enemies[1].name;
+        enemy2HpHtml.innerHTML="HP: "+String(enemies[1].hp)+" / "+String(enemies[1].maxhp);
+        enemy2ImgHtml.src = String("img/EnemySprites/"+enemies[1].name+".jpg")
+        if (enemy2Card) {
+            enemy2Card.style.visibility = "visible"
+            enemy2Card.style.opacity = "1"
+        }
+    } else {
+        enemy2NameHtml.innerHTML="";
+        enemy2HpHtml.innerHTML="";
+        enemy2ImgHtml.src="";
+        if (enemy2Card) {
+            enemy2Card.style.visibility = "hidden"
+            enemy2Card.style.opacity = "0"
+        }
+    }
+    if (enemies[2]!=null) {
+        enemy3NameHtml.innerHTML=enemies[2].name;
+        enemy3HpHtml.innerHTML="HP: "+String(enemies[2].hp)+" / "+String(enemies[2].maxhp);
+        enemy3ImgHtml.src = String("img/EnemySprites/"+enemies[2].name+".jpg")
+        if (enemy3Card) {
+            enemy3Card.style.visibility = "visible"
+            enemy3Card.style.opacity = "1"
+        }
+    } else {
+        enemy3NameHtml.innerHTML="";
+        enemy3HpHtml.innerHTML="";
+        enemy3ImgHtml.src="";
+        if (enemy3Card) {
+            enemy3Card.style.visibility = "hidden"
+            enemy3Card.style.opacity = "0"
+        }
+    }
 }
 
 //pause funkce kterou jsem si půjčil z internetu
@@ -432,24 +485,21 @@ function TurnFinishpressed() {
     if (bardAct !== null) { if (bardTarg != null) {bardAct(bardTarg);} } bardAct = null;
     if (mageAct !== null && mageTarg !== null && heroes !== null) { mageAct(mageTarg); } mageAct = null;
     if (warriorAct !== null && warriorTarg !== null && heroes !== null) { warriorAct(warriorTarg);} warriorAct = null;
-    charCancelBtnPressed()
     actCancelBtnPressed()
     selectCancelBtnPressed()
-    const something = document.getElementById("TurnFinish")
-    if (something!=null) {something.remove}
+    if (finishTurnBtn) {
+        finishTurnBtn.style.display = "none"
+    }
     for (let enemy of enemies) {
         if (enemy != null) {
             enemy.Attack()
         }
     }
-    const thingymabob = document.getElementById("Thingymabob")
-
-    const endTurnBtn = document.createElement("button") as HTMLButtonElement
-        endTurnBtn.innerHTML = "Finish Turn"
-        endTurnBtn.onclick = () => TurnFinishpressed()
-        endTurnBtn.id = "TurnFinish"
-        thingymabob?.appendChild(endTurnBtn)
-
+    setTimeout(() => {
+        if (finishTurnBtn) {
+            finishTurnBtn.style.display = "inline-flex"
+        }
+    }, 1000)
     newturn()
 }
 
