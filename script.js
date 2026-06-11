@@ -1,4 +1,5 @@
 "use strict";
+//základní consty a html elementy
 const techDiv = document.getElementById("technical");
 const characterDiv = document.getElementById("characters");
 const actionDiv = document.getElementById("actions");
@@ -11,17 +12,38 @@ var mage1;
 var warrior1;
 var bard1;
 heroes = [];
+//funkce která mění text v popisku
 function setDescription(text) {
     if (!descriptionBox) {
         return;
     }
     descriptionBox.textContent = text;
 }
+//funkce která přidává event listenery pro zobrazení popisku na tlačítka
 function attachDescription(button, description) {
     button.addEventListener("mouseenter", () => setDescription(description));
     button.addEventListener("mouseleave", () => setDescription("Hover an action or enemy for details"));
 }
-//deklarace všech statistik v HTML
+//funkce která přidává event listenery pro zobrazení popisku na nepřátele
+function getEnemyDescription(name) {
+    const normalized = name.toLowerCase();
+    if (normalized === "goomba")
+        return descriptions.goomba;
+    if (normalized === "koopa")
+        return descriptions.koopa;
+    if (normalized === "baby")
+        return descriptions.baby;
+    if (normalized === "springer")
+        return descriptions.springer;
+    if (normalized === "husk")
+        return descriptions.husk;
+    if (normalized === "guardian")
+        return descriptions.guardian;
+    if (normalized === "voidbound guardian")
+        return descriptions.VoidboundGuardian;
+    return "";
+}
+//deklarace všech objektů v dokumentu, které se budou často měnit
 var MageNameHtml;
 var MageHpHtml;
 var MageManaHtml;
@@ -31,10 +53,13 @@ var BardNameHtml;
 var BardHpHtml;
 var enemy1NameHtml;
 var enemy1HpHtml;
+var enemy1ShieldHtml;
 var enemy2NameHtml;
 var enemy2HpHtml;
+var enemy2ShieldHtml;
 var enemy3NameHtml;
 var enemy3HpHtml;
+var enemy3ShieldHtml;
 var mageActionDiv = null;
 var mageTargetDiv = null;
 var warriorActionDiv = null;
@@ -46,31 +71,38 @@ var w1s1 = new baby(1);
 var w1s2 = new springer(2);
 var w1s3 = new baby(3);
 var wave1 = [w1s1, w1s2, w1s3];
-var w2s1 = new springer(1);
-var w2s2 = new springer(2);
-var w2s3 = new springer(3);
+var w2s1 = new husk(1);
+var w2s2 = new guardian(2);
+var w2s3 = new husk(3);
 var wave2 = [w2s1, w2s2, w2s3];
-var w3s1 = new springer(1);
-var w3s2 = new springer(2);
-var w3s3 = new springer(3);
+var w3s1 = null;
+var w3s2 = new VBGuardian(2);
+var w3s3 = null;
 var wave3 = [w3s1, w3s2, w3s3];
-//variable pro útoky hrdinů
+//variable pro útoky hrdinů, ukládá funkci která se má vykonat po kliknutí na tlačítko "finish turn"
 var mageAct = null;
 var warriorAct = null;
 var bardAct = null;
-//variable pro cílenou skupinu | nepřítele
+//variable pro cíl
 var mageTarg = null;
 var warriorTarg = null;
 var bardTarg = null;
 //variable pro kolo a vlnu
 var turncounter = 1;
 var wave = 1;
+//sekvence pro zadání jména hrdinů a spuštění hry
 function nameInputSequence() {
     const ContinueBtn = document.createElement("Button");
     ContinueBtn.innerHTML = "Confirm";
     ContinueBtn.id = "continueBtn";
     ContinueBtn.onclick = start;
     techDiv.appendChild(ContinueBtn);
+    const nameError = document.createElement("div");
+    nameError.id = "nameError";
+    nameError.className = "name-error";
+    nameError.textContent = "";
+    nameError.style.display = "none";
+    techDiv.appendChild(nameError);
     const mageName = document.createElement("input");
     mageName.id = "mageNameInp";
     const mageLabel = document.createElement("label");
@@ -98,17 +130,29 @@ function nameInputSequence() {
     document.body.classList.add("name-select");
     StartBtn.remove();
 }
+//sekvence spuštění hry po zadání jmen
 function start() {
-    enemies = wave1;
     const mageInp = document.getElementById("mageNameInp");
     const warriorInp = document.getElementById("warriorNameInp");
     const bardInp = document.getElementById("bardNameInp");
-    if (String(mageInp.value) == "" || String(warriorInp.value) == "" || String(bardInp.value) == "") {
-        console.warn("C'mon man... give them all a name");
+    const nameError = document.getElementById("nameError");
+    //kontrola jestli jsou všechna pole vyplněná, pokud ne, zobraz chybovou hlášku a zastav spuštění
+    if (String(mageInp.value).trim() === "" || String(warriorInp.value).trim() === "" || String(bardInp.value).trim() === "") {
+        if (nameError) {
+            nameError.textContent = "C'mon man... give them all a name";
+            nameError.style.display = "block";
+        }
         return;
+    }
+    enemies = wave1;
+    //mazání chybové hlášky
+    if (nameError) {
+        nameError.textContent = "";
+        nameError.style.display = "none";
     }
     document.getElementById("continueBtn")?.remove();
     document.body.classList.remove("name-select");
+    //vytvlření hrdinů a jejich zobrazení v HTML
     mage1 = new mage(80, 60, String(mageInp.value), 100, 0, 1);
     warrior1 = new warrior(100, 50, String(warriorInp.value), 25, 2);
     bard1 = new bard(70, 20, String(bardInp.value), 0, 3);
@@ -116,7 +160,6 @@ function start() {
     charCancelBtnPressed();
     actCancelBtnPressed();
     selectCancelBtnPressed();
-    // CREATE STATS ELEMENTS INSTEAD OF USING innerHTML +=
     const statsDiv = document.createElement("div");
     statsDiv.id = "Stats";
     const characterStats = document.createElement("div");
@@ -185,6 +228,7 @@ function start() {
         <div class="statBox">
             <div id="enemy1Name"></div>
             <div id="enemy1HP"></div>
+            <div id="enemy1Shield"></div>
         </div>
     `;
     enemyStats.appendChild(enemy1Stats);
@@ -196,6 +240,7 @@ function start() {
         <div class="statBox">
             <div id="enemy2Name"></div>
             <div id="enemy2HP"></div>
+            <div id="enemy2Shield"></div>
         </div>
     `;
     enemyStats.appendChild(enemy2Stats);
@@ -207,6 +252,7 @@ function start() {
         <div class="statBox">
             <div id="enemy3Name"></div>
             <div id="enemy3HP"></div>
+            <div id="enemy3Shield"></div>
         </div>
     `;
     enemyStats.appendChild(enemy3Stats);
@@ -235,17 +281,20 @@ function start() {
     BardHpHtml = document.getElementById("BardHp");
     enemy1NameHtml = document.getElementById("enemy1Name");
     enemy1HpHtml = document.getElementById("enemy1HP");
+    enemy1ShieldHtml = document.getElementById("enemy1Shield");
     enemy2NameHtml = document.getElementById("enemy2Name");
     enemy2HpHtml = document.getElementById("enemy2HP");
+    enemy2ShieldHtml = document.getElementById("enemy2Shield");
     enemy3NameHtml = document.getElementById("enemy3Name");
     enemy3HpHtml = document.getElementById("enemy3HP");
+    enemy3ShieldHtml = document.getElementById("enemy3Shield");
     const thingymabob = document.createElement("div");
     document.body.appendChild(thingymabob);
     thingymabob.id = "Thingymabob";
     descriptionBox = document.createElement("div");
     descriptionBox.id = "ActionDescription";
     descriptionBox.className = "descriptionBox";
-    descriptionBox.textContent = "Hover an action for details";
+    descriptionBox.textContent = "Hover an action or enemy for details";
     thingymabob.appendChild(descriptionBox);
     const endTurnBtn = document.createElement("button");
     endTurnBtn.innerHTML = "Finish Turn";
@@ -272,6 +321,7 @@ function enemiesDeadChecker() {
         return false;
     }
 }
+//funkce pro aktualizace statistik a kontrolu smrti nepřátel po útoku hrdinů
 function updateHtmlStats() {
     MageNameHtml.innerHTML = mage1.name;
     MageHpHtml.innerHTML = "HP: " + String(mage1.hp) + " / " + String(mage1.maxhp);
@@ -298,9 +348,17 @@ function updateHtmlStats() {
     if (enemies[0] != null) {
         enemy1NameHtml.innerHTML = enemies[0].name;
         enemy1HpHtml.innerHTML = "HP: " + String(enemies[0].hp) + " / " + String(enemies[0].maxhp);
+        if (enemies[0].shield > 0) {
+            enemy1ShieldHtml.innerHTML = "Shield: " + String(enemies[0].shield) + "%";
+            enemy1ShieldHtml.style.display = "block";
+        }
+        else {
+            enemy1ShieldHtml.innerHTML = "";
+            enemy1ShieldHtml.style.display = "none";
+        }
         enemy1ImgHtml.src = String("img/EnemySprites/" + enemies[0].name + ".jpg");
-        // show enemy description on hover
-        const e0desc = (enemies[0].name.toLowerCase() === "goomba") ? descriptions.goomba : (enemies[0].name.toLowerCase() === "koopa") ? descriptions.koopa : (enemies[0].name.toLowerCase() === "baby") ? descriptions.baby : (enemies[0].name.toLowerCase() === "springer") ? descriptions.springer : "";
+        // úkázání popisku nepřítele po přejetí mýší
+        const e0desc = getEnemyDescription(enemies[0].name);
         enemy1ImgHtml.onmouseenter = () => setDescription(e0desc);
         enemy1ImgHtml.onmouseleave = () => setDescription("Hover an action or enemy for details");
         if (enemy1Card) {
@@ -311,6 +369,8 @@ function updateHtmlStats() {
     else {
         enemy1NameHtml.innerHTML = "";
         enemy1HpHtml.innerHTML = "";
+        enemy1ShieldHtml.innerHTML = "";
+        enemy1ShieldHtml.style.display = "none";
         enemy1ImgHtml.src = "";
         if (enemy1Card) {
             enemy1Card.style.visibility = "hidden";
@@ -320,9 +380,17 @@ function updateHtmlStats() {
     if (enemies[1] != null) {
         enemy2NameHtml.innerHTML = enemies[1].name;
         enemy2HpHtml.innerHTML = "HP: " + String(enemies[1].hp) + " / " + String(enemies[1].maxhp);
+        if (enemies[1].shield > 0) {
+            enemy2ShieldHtml.innerHTML = "Shield: " + String(enemies[1].shield) + "%";
+            enemy2ShieldHtml.style.display = "block";
+        }
+        else {
+            enemy2ShieldHtml.innerHTML = "";
+            enemy2ShieldHtml.style.display = "none";
+        }
         enemy2ImgHtml.src = String("img/EnemySprites/" + enemies[1].name + ".jpg");
-        // show enemy description on hover
-        const e1desc = (enemies[1].name.toLowerCase() === "goomba") ? descriptions.goomba : (enemies[1].name.toLowerCase() === "koopa") ? descriptions.koopa : (enemies[1].name.toLowerCase() === "baby") ? descriptions.baby : (enemies[1].name.toLowerCase() === "springer") ? descriptions.springer : "";
+        // úkázání popisku nepřítele po přejetí mýší
+        const e1desc = getEnemyDescription(enemies[1].name);
         enemy2ImgHtml.onmouseenter = () => setDescription(e1desc);
         enemy2ImgHtml.onmouseleave = () => setDescription("Hover an action or enemy for details");
         if (enemy2Card) {
@@ -333,6 +401,8 @@ function updateHtmlStats() {
     else {
         enemy2NameHtml.innerHTML = "";
         enemy2HpHtml.innerHTML = "";
+        enemy2ShieldHtml.innerHTML = "";
+        enemy2ShieldHtml.style.display = "none";
         enemy2ImgHtml.src = "";
         if (enemy2Card) {
             enemy2Card.style.visibility = "hidden";
@@ -342,9 +412,17 @@ function updateHtmlStats() {
     if (enemies[2] != null) {
         enemy3NameHtml.innerHTML = enemies[2].name;
         enemy3HpHtml.innerHTML = "HP: " + String(enemies[2].hp) + " / " + String(enemies[2].maxhp);
+        if (enemies[2].shield > 0) {
+            enemy3ShieldHtml.innerHTML = "Shield: " + String(enemies[2].shield) + "%";
+            enemy3ShieldHtml.style.display = "block";
+        }
+        else {
+            enemy3ShieldHtml.innerHTML = "";
+            enemy3ShieldHtml.style.display = "none";
+        }
         enemy3ImgHtml.src = String("img/EnemySprites/" + enemies[2].name + ".jpg");
-        // show enemy description on hover
-        const e2desc = (enemies[2].name.toLowerCase() === "goomba") ? descriptions.goomba : (enemies[2].name.toLowerCase() === "koopa") ? descriptions.koopa : (enemies[2].name.toLowerCase() === "baby") ? descriptions.baby : (enemies[2].name.toLowerCase() === "springer") ? descriptions.springer : "";
+        // úkázání popisku nepřítele po přejetí mýší
+        const e2desc = getEnemyDescription(enemies[2].name);
         enemy3ImgHtml.onmouseenter = () => setDescription(e2desc);
         enemy3ImgHtml.onmouseleave = () => setDescription("Hover an action or enemy for details");
         if (enemy3Card) {
@@ -355,6 +433,8 @@ function updateHtmlStats() {
     else {
         enemy3NameHtml.innerHTML = "";
         enemy3HpHtml.innerHTML = "";
+        enemy3ShieldHtml.innerHTML = "";
+        enemy3ShieldHtml.style.display = "none";
         enemy3ImgHtml.src = "";
         if (enemy3Card) {
             enemy3Card.style.visibility = "hidden";
@@ -386,7 +466,7 @@ async function newturn() {
             enemies = wave3;
         }
         else if (wave == 4) {
-            // all waves cleared -> show victory screen and stop further turns
+            // jestli všechny vlny jsou za námi, ukaž vítěznou obrazovku a zastav hru
             enemies = [null, null, null];
             showVictoryScreen();
             return;
@@ -407,6 +487,7 @@ function hideActionBoxes() {
         wrapper?.classList.add("hidden");
     }
 }
+//mazání tlačítek na vybrání cíle
 function hideTargetBoxes() {
     const areas = [mageTargetDiv, warriorTargetDiv, bardTargetDiv];
     for (let area of areas) {
@@ -417,6 +498,7 @@ function hideTargetBoxes() {
         wrapper?.classList.add("hidden");
     }
 }
+//zobrazí tlačítka pro výběr akce
 function showActionBox(area) {
     hideActionBoxes();
     hideTargetBoxes();
@@ -426,6 +508,7 @@ function showActionBox(area) {
     const wrapper = area.closest(".actionTargetBox");
     wrapper?.classList.remove("hidden");
 }
+//zobrazí tlačítka pro výběr cíle
 function showTargetBox(area) {
     hideTargetBoxes();
     if (!area) {
@@ -434,6 +517,7 @@ function showTargetBox(area) {
     const wrapper = area.closest(".actionTargetBox");
     wrapper?.classList.remove("hidden");
 }
+//funkce pro zrušení výběru akce
 function actCancelBtnPressed() {
     const areas = [mageActionDiv, warriorActionDiv, bardActionDiv, actionDiv];
     for (let area of areas) {
@@ -445,7 +529,7 @@ function actCancelBtnPressed() {
         wrapper?.classList.add("hidden");
     }
 }
-//mazání tlačítek na vybrání cíle
+//funkce pro zrušení výberu cíle
 function selectCancelBtnPressed() {
     const areas = [mageTargetDiv, warriorTargetDiv, bardTargetDiv, targetDiv];
     for (let area of areas) {
@@ -457,25 +541,18 @@ function selectCancelBtnPressed() {
         wrapper?.classList.add("hidden");
     }
 }
-//mazání tlačítek na výběr hrdiny
+//mazání výběru jmen hrdinů
 function charCancelBtnPressed() {
     const children = Array.from(characterDiv.children);
     for (let object of children) {
         object.remove();
     }
 }
-function thingymabobRemove() {
-    const children = Array.from(characterDiv.children);
-    for (let object of children) {
-        object.remove();
-    }
-}
-// show a simple victory overlay and stop the game
+// funkce která zobrazuje vítěznou obrazovku
 function showVictoryScreen() {
     if (finishTurnBtn) {
         finishTurnBtn.style.display = "none";
     }
-    // hide main game UI so only the victory overlay is visible
     try {
         techDiv.style.display = "none";
     }
@@ -496,31 +573,32 @@ function showVictoryScreen() {
     if (thing) {
         thing.style.display = "none";
     }
-    // avoid duplicating overlay
-    if (document.getElementById("VictoryScreen")) {
+    // aby nebylo UI vícekrát na sobě
+    if (document.getElementById("GameEndScreen")) {
         return;
     }
     const overlay = document.createElement("div");
-    overlay.id = "VictoryScreen";
-    overlay.className = "victory-screen";
+    overlay.id = "GameEndScreen";
+    overlay.className = "game-end-overlay";
     overlay.innerHTML = `
-        <div class="victory-content">
+        <div class="game-end-card victory">
             <h1>Victory!</h1>
             <p>You defeated all waves.</p>
             <button id="playAgainBtn">Play Again</button>
         </div>
     `;
     document.body.appendChild(overlay);
+    //tlačítko pro restartování hry, které načte stránku znovu
     const playAgain = document.getElementById("playAgainBtn");
     if (playAgain) {
         playAgain.onclick = () => location.reload();
     }
 }
+// stejně jako showVictoryScreen, ale pro prohru
 function showLoseScreen() {
     if (finishTurnBtn) {
         finishTurnBtn.style.display = "none";
     }
-    // hide main game UI so only the victory overlay is visible
     try {
         techDiv.style.display = "none";
     }
@@ -542,14 +620,14 @@ function showLoseScreen() {
         thing.style.display = "none";
     }
     // avoid duplicating overlay
-    if (document.getElementById("VictoryScreen")) {
+    if (document.getElementById("GameEndScreen")) {
         return;
     }
     const overlay = document.createElement("div");
-    overlay.id = "VictoryScreen";
-    overlay.className = "victory-screen";
+    overlay.id = "GameEndScreen";
+    overlay.className = "game-end-overlay";
     overlay.innerHTML = `
-        <div class="victory-content">
+        <div class="game-end-card loss">
             <h1>Loss!</h1>
             <p>You DIED!!.</p>
             <button id="playAgainBtn">Play Again</button>
@@ -563,6 +641,7 @@ function showLoseScreen() {
 }
 //funkce pro zmáčknutí tlaćítka "Konec Tahu"
 function TurnFinishpressed() {
+    //exekuje funkce které byly uloženy do [Hrdina]Act a [Hrdina]Targ, pokud jsou tam nějaké, a pak je smaže pro další kolo
     if (bardAct !== null) {
         if (bardTarg != null) {
             bardAct(bardTarg);
@@ -734,7 +813,6 @@ function WarriorBtnPressed() {
 }
 function swordSlashBtnPressed() {
     selectCancelBtnPressed();
-    hideActionBoxes();
     showTargetBox(warriorTargetDiv);
     if (!warriorTargetDiv) {
         return;

@@ -2,7 +2,7 @@ var enemies:(enemy|null)[] = []
 var heroes:hero[] = []
 
 
-//hrdina
+//abstraktní třída hrdiny
 abstract class hero {
     hp:number = -1;
     maxhp:number = -1;
@@ -39,7 +39,7 @@ abstract class hero {
     }
 }
 
-//záporák
+//abstraktní třída záporáka
 abstract class enemy {
     maxhp:number = -1;
     hp:number = -1;
@@ -140,6 +140,7 @@ class bard extends hero {
 }
 
 //typy záporáků
+//goomba a koopa jsou placeholdeři, ale chtěl jsem je tady nechat, protože jsou roztomilí
 class goomba extends enemy {
     constructor(pos:number) {
         super(100, 30, pos);
@@ -147,7 +148,7 @@ class goomba extends enemy {
     }
 
     Attack() {
-        // pick a random alive hero; if none alive, do nothing
+        // tohle vybírá náhodně jednoho živého hrdinu a útočí na něj, pokud nejsou žádní živí hrdinové, neútočí
         const alive = heroes.filter(h => h != null && (h as hero).dead == false) as hero[]
         if (alive.length === 0) { return }
         const chosen = alive[Math.floor(Math.random() * alive.length)]
@@ -162,7 +163,6 @@ class koopa extends enemy {
     }
 
     Attack() {
-        // pick a random alive hero; if none alive, do nothing
         const alive = heroes.filter(h => h != null && (h as hero).dead == false) as hero[]
         if (alive.length === 0) { return }
         const chosen = alive[Math.floor(Math.random() * alive.length)]
@@ -171,6 +171,7 @@ class koopa extends enemy {
     }
 }
 
+//baby útočí na všechny
 class baby extends enemy {
     constructor(pos:number) {
         super(75, 10, pos);
@@ -201,6 +202,71 @@ class springer extends enemy {
     }
 }
 
+class husk extends enemy {
+    constructor(pos:number) {
+        super(50, 60, pos);
+        this.name = "Husk";
+        this.shield = 50;
+    }
+
+    Attack() {
+        //útočí jen každý druhý tah
+        if (this.attackcounter % 2 == 0) {
+            const alive = heroes.filter(h => h != null && (h as hero).dead == false) as hero[]
+            if (alive.length === 0) { return }
+            const chosen = alive[Math.floor(Math.random() * alive.length)]
+            chosen.damage(this.atk)
+        }
+        this.attackcounter++
+    }
+}
+
+class guardian extends enemy {
+    constructor(pos:number) {
+        super(200, 8, pos);
+        this.name = "Guardian";
+    }
+
+    Attack() {
+        //stejně jako útok který útočí na jednoho, ale je opakován 5krát
+        for (var i = 0; i < 5; i++) {
+        if (heroes.every(h => h == null || (h as hero).dead == true)) { return }
+        const alive = heroes.filter(h => h != null && (h as hero).dead == false) as hero[]
+        if (alive.length === 0) { return }
+        const chosen = alive[Math.floor(Math.random() * alive.length)]
+        chosen.damage(this.atk)
+        }
+    }
+}
+
+class VBGuardian extends enemy {
+    constructor(pos:number) {
+        super(400, 10, pos);
+        this.name = "Voidbound Guardian";
+        this.shield = 25;
+    }
+
+    Attack() {
+        //každý sudý tah útočí podobně jako guardian, každý lichý tah útočí podobně jako baby
+        if (this.attackcounter % 2 == 0) {
+            for (var i = 0; i < 8; i++) {
+            if (heroes.every(h => h == null || (h as hero).dead == true)) { return }
+            const alive = heroes.filter(h => h != null && (h as hero).dead == false) as hero[]
+            if (alive.length === 0) { return }
+            const chosen = alive[Math.floor(Math.random() * alive.length)]
+            chosen.damage(this.atk)
+            }
+        } else {
+            for (var hero of heroes) {
+                if (hero != null && hero.dead == false) {
+                    hero.damage(30)
+                }
+            }
+        }
+    }
+}
+
+//popisky pro útoky a nepřátele, myslel jsem si že by bylo lehčí je mít všechny pohromadě než je mít v různých funkcích
 class descriptions {
     static lightningStrike = "Smites the enemy with the power of the heavens, deals 60 damage and costs 20 mana."
     static fireball = "Launches a big ball of flame at the enemy, dealing 60 damage to the target and 30 damage to all adjacent enemies, costs 30 mana"
@@ -213,4 +279,7 @@ class descriptions {
     static koopa = "Uhhmm... uhhhh guh?"
     static baby = "Dashes at the heroes all at once, dealing 10 damage to everyone"
     static springer = "Jumps and crushes a target, dealing 30 damage"
+    static guardian = "Shoots a volley of 5 magical bullets, dealing 8 damage per shot (choses a different target for each shot)"
+    static husk = "The remains of a mighty warrior, deals 60 damage but only attacks every other turn"
+    static VoidboundGuardian = "A stronger version of the guardian, cycles between shooting 8 magic attacks, each dealing 10 damage, and a powerful blast that deals 30 damage to everyone"
 }

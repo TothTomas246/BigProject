@@ -123,6 +123,21 @@ button {
     box-shadow: 0 0 0 3px rgba(34, 209, 255, 0.12), inset 0 1px 0 rgba(255,255,255,0.2);
 }
 
+.name-error {
+    width: min(90%, 640px);
+    max-width: 640px;
+    margin: 8px auto 0;
+    padding: 10px 12px;
+    border: 2px solid #ff4d6d;
+    border-radius: 6px;
+    background: rgba(40, 0, 15, 0.8);
+    color: #ffb8c8;
+    font-size: 0.9rem;
+    text-transform: none;
+    letter-spacing: 0.04em;
+    text-align: center;
+}
+
 #Thingymabob {
     width: min(640px, 90vw);
     max-width: 640px;
@@ -133,6 +148,59 @@ button {
     gap: 10px;
     padding: 0 10px;
     box-sizing: border-box;
+}
+
+.game-end-overlay {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: rgba(0, 0, 0, 0.72);
+    backdrop-filter: blur(8px);
+    z-index: 999;
+}
+
+.game-end-card {
+    width: min(90%, 520px);
+    max-width: 520px;
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    border: 2px solid #22d1ff;
+    border-radius: 10px;
+    background: rgba(5, 15, 30, 0.98);
+    box-shadow: 0 0 0 3px rgba(34, 209, 255, 0.12), 0 24px 48px rgba(0, 0, 0, 0.35);
+    text-align: center;
+}
+
+.game-end-card h1 {
+    margin: 0;
+    font-size: clamp(2rem, 4vw, 3rem);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #9df2ff;
+}
+
+.game-end-card p {
+    margin: 0;
+    color: #d7f8ff;
+    line-height: 1.5;
+    font-size: 1rem;
+}
+
+.game-end-card button {
+    width: min(240px, 100%);
+    margin: 0 auto;
+}
+
+.game-end-card.victory h1 {
+    color: #a4ffb8;
+}
+
+.game-end-card.loss h1 {
+    color: #ffb3b3;
 }
 
 #TurnFinish {
@@ -207,8 +275,8 @@ button:active {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 440px;
-    min-width: 440px;
+    width: min(100%, 440px);
+    min-width: 0;
     flex-shrink: 0;
 }
 
@@ -218,7 +286,7 @@ button:active {
 
 .actionTargetBox {
     width: 100%;
-    min-width: 420px;
+    min-width: 0;
     min-height: 88px;
     background: rgba(8, 14, 28, 0.94);
     border: 1px solid rgba(62, 149, 255, 0.22);
@@ -274,6 +342,113 @@ button:active {
     display: none !important;
 }
 
+@media (max-width: 860px) {
+    body {
+        padding: 0 12px;
+        gap: 16px;
+    }
+
+    #Stats {
+        flex-direction: column;
+        padding: 0 14px;
+        gap: 14px;
+    }
+
+    #Stats > div {
+        width: 100%;
+        flex: 1 1 auto;
+    }
+
+    .characterStats {
+        width: 100%;
+        max-width: 100%;
+        margin: 0 auto;
+    }
+
+    .actionTargetBox {
+        min-width: 0;
+        padding: 12px;
+    }
+
+    .heroActionArea,
+    .heroTargetArea {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .heroActionArea button,
+    .heroTargetArea button {
+        min-width: 0;
+        white-space: normal;
+    }
+
+    .heroImage,
+    #Enemy1Img,
+    #Enemy2Img,
+    #Enemy3Img {
+        width: 80px;
+        height: 80px;
+    }
+
+    .descriptionBox {
+        width: min(640px, 95vw);
+    }
+}
+
+@media (max-width: 560px) {
+    body {
+        gap: 12px;
+    }
+
+    #technical,
+    #characters,
+    #actions,
+    #targets,
+    .game-end-card {
+        width: min(100%, 100vw);
+        padding: 16px;
+    }
+
+    body.name-select #technical,
+    body.name-select #characters,
+    body.name-select #actions,
+    body.name-select #targets {
+        width: min(100%, 100vw);
+        padding: 16px;
+    }
+
+    body.name-select #characters label,
+    body.name-select #actions label,
+    body.name-select #targets label,
+    body.name-select #characters input,
+    body.name-select #actions input,
+    body.name-select #targets input,
+    .name-error {
+        max-width: 100%;
+    }
+
+    #startBtn,
+    #continueBtn,
+    button {
+        width: 100%;
+        max-width: 100%;
+        padding: 14px 16px;
+    }
+
+    .game-end-card {
+        padding: 20px;
+    }
+
+    .heroImage,
+    #Enemy1Img,
+    #Enemy2Img,
+    #Enemy3Img {
+        width: 70px;
+        height: 70px;
+    }
+}
+
 .actionTargetBox {
     width: 100%;
     min-height: 0;
@@ -313,7 +488,7 @@ button:active {
     border-radius: 6px;
     background: rgba(3, 9, 22, 0.95);
     color: #d7f8ff;
-    font-size: 0.9rem;
+    font-size: 18px;
     line-height: 1.4;
     text-align: left;
     box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
