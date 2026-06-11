@@ -19,7 +19,7 @@ function setDescription(text) {
 }
 function attachDescription(button, description) {
     button.addEventListener("mouseenter", () => setDescription(description));
-    button.addEventListener("mouseleave", () => setDescription("Hover an action for details"));
+    button.addEventListener("mouseleave", () => setDescription("Hover an action or enemy for details"));
 }
 //deklarace všech statistik v HTML
 var MageNameHtml;
@@ -42,17 +42,17 @@ var warriorTargetDiv = null;
 var bardActionDiv = null;
 var bardTargetDiv = null;
 //interní vypsání nepřátelů na každou vlnu (w1s1 = wave 1 slot 1)
-var w1s1 = new goomba(1);
-var w1s2 = new goomba(2);
-var w1s3 = new goomba(3);
+var w1s1 = new baby(1);
+var w1s2 = new springer(2);
+var w1s3 = new baby(3);
 var wave1 = [w1s1, w1s2, w1s3];
-var w2s1 = new goomba(1);
-var w2s2 = new koopa(2);
-var w2s3 = new goomba(3);
+var w2s1 = new springer(1);
+var w2s2 = new springer(2);
+var w2s3 = new springer(3);
 var wave2 = [w2s1, w2s2, w2s3];
-var w3s1 = new koopa(1);
-var w3s2 = new koopa(2);
-var w3s3 = new koopa(3);
+var w3s1 = new springer(1);
+var w3s2 = new springer(2);
+var w3s3 = new springer(3);
 var wave3 = [w3s1, w3s2, w3s3];
 //variable pro útoky hrdinů
 var mageAct = null;
@@ -100,7 +100,6 @@ function nameInputSequence() {
 }
 function start() {
     enemies = wave1;
-    document.getElementById("continueBtn")?.remove();
     const mageInp = document.getElementById("mageNameInp");
     const warriorInp = document.getElementById("warriorNameInp");
     const bardInp = document.getElementById("bardNameInp");
@@ -108,6 +107,7 @@ function start() {
         console.warn("C'mon man... give them all a name");
         return;
     }
+    document.getElementById("continueBtn")?.remove();
     document.body.classList.remove("name-select");
     mage1 = new mage(80, 60, String(mageInp.value), 100, 0, 1);
     warrior1 = new warrior(100, 50, String(warriorInp.value), 25, 2);
@@ -299,6 +299,10 @@ function updateHtmlStats() {
         enemy1NameHtml.innerHTML = enemies[0].name;
         enemy1HpHtml.innerHTML = "HP: " + String(enemies[0].hp) + " / " + String(enemies[0].maxhp);
         enemy1ImgHtml.src = String("img/EnemySprites/" + enemies[0].name + ".jpg");
+        // show enemy description on hover
+        const e0desc = (enemies[0].name.toLowerCase() === "goomba") ? descriptions.goomba : (enemies[0].name.toLowerCase() === "koopa") ? descriptions.koopa : (enemies[0].name.toLowerCase() === "baby") ? descriptions.baby : (enemies[0].name.toLowerCase() === "springer") ? descriptions.springer : "";
+        enemy1ImgHtml.onmouseenter = () => setDescription(e0desc);
+        enemy1ImgHtml.onmouseleave = () => setDescription("Hover an action or enemy for details");
         if (enemy1Card) {
             enemy1Card.style.visibility = "visible";
             enemy1Card.style.opacity = "1";
@@ -317,6 +321,10 @@ function updateHtmlStats() {
         enemy2NameHtml.innerHTML = enemies[1].name;
         enemy2HpHtml.innerHTML = "HP: " + String(enemies[1].hp) + " / " + String(enemies[1].maxhp);
         enemy2ImgHtml.src = String("img/EnemySprites/" + enemies[1].name + ".jpg");
+        // show enemy description on hover
+        const e1desc = (enemies[1].name.toLowerCase() === "goomba") ? descriptions.goomba : (enemies[1].name.toLowerCase() === "koopa") ? descriptions.koopa : (enemies[1].name.toLowerCase() === "baby") ? descriptions.baby : (enemies[1].name.toLowerCase() === "springer") ? descriptions.springer : "";
+        enemy2ImgHtml.onmouseenter = () => setDescription(e1desc);
+        enemy2ImgHtml.onmouseleave = () => setDescription("Hover an action or enemy for details");
         if (enemy2Card) {
             enemy2Card.style.visibility = "visible";
             enemy2Card.style.opacity = "1";
@@ -335,6 +343,10 @@ function updateHtmlStats() {
         enemy3NameHtml.innerHTML = enemies[2].name;
         enemy3HpHtml.innerHTML = "HP: " + String(enemies[2].hp) + " / " + String(enemies[2].maxhp);
         enemy3ImgHtml.src = String("img/EnemySprites/" + enemies[2].name + ".jpg");
+        // show enemy description on hover
+        const e2desc = (enemies[2].name.toLowerCase() === "goomba") ? descriptions.goomba : (enemies[2].name.toLowerCase() === "koopa") ? descriptions.koopa : (enemies[2].name.toLowerCase() === "baby") ? descriptions.baby : (enemies[2].name.toLowerCase() === "springer") ? descriptions.springer : "";
+        enemy3ImgHtml.onmouseenter = () => setDescription(e2desc);
+        enemy3ImgHtml.onmouseleave = () => setDescription("Hover an action or enemy for details");
         if (enemy3Card) {
             enemy3Card.style.visibility = "visible";
             enemy3Card.style.opacity = "1";
@@ -370,11 +382,14 @@ async function newturn() {
         if (wave == 2) {
             enemies = wave2;
         }
-        if (wave == 3) {
+        else if (wave == 3) {
             enemies = wave3;
         }
-        if (wave == 4) {
-            enemy1NameHtml.innerHTML = "you win!!";
+        else if (wave == 4) {
+            // all waves cleared -> show victory screen and stop further turns
+            enemies = [null, null, null];
+            showVictoryScreen();
+            return;
         }
     }
     console.log(enemies);
@@ -455,6 +470,97 @@ function thingymabobRemove() {
         object.remove();
     }
 }
+// show a simple victory overlay and stop the game
+function showVictoryScreen() {
+    if (finishTurnBtn) {
+        finishTurnBtn.style.display = "none";
+    }
+    // hide main game UI so only the victory overlay is visible
+    try {
+        techDiv.style.display = "none";
+    }
+    catch (e) { }
+    try {
+        characterDiv.style.display = "none";
+    }
+    catch (e) { }
+    try {
+        actionDiv.style.display = "none";
+    }
+    catch (e) { }
+    try {
+        targetDiv.style.display = "none";
+    }
+    catch (e) { }
+    const thing = document.getElementById("Thingymabob");
+    if (thing) {
+        thing.style.display = "none";
+    }
+    // avoid duplicating overlay
+    if (document.getElementById("VictoryScreen")) {
+        return;
+    }
+    const overlay = document.createElement("div");
+    overlay.id = "VictoryScreen";
+    overlay.className = "victory-screen";
+    overlay.innerHTML = `
+        <div class="victory-content">
+            <h1>Victory!</h1>
+            <p>You defeated all waves.</p>
+            <button id="playAgainBtn">Play Again</button>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+    const playAgain = document.getElementById("playAgainBtn");
+    if (playAgain) {
+        playAgain.onclick = () => location.reload();
+    }
+}
+function showLoseScreen() {
+    if (finishTurnBtn) {
+        finishTurnBtn.style.display = "none";
+    }
+    // hide main game UI so only the victory overlay is visible
+    try {
+        techDiv.style.display = "none";
+    }
+    catch (e) { }
+    try {
+        characterDiv.style.display = "none";
+    }
+    catch (e) { }
+    try {
+        actionDiv.style.display = "none";
+    }
+    catch (e) { }
+    try {
+        targetDiv.style.display = "none";
+    }
+    catch (e) { }
+    const thing = document.getElementById("Thingymabob");
+    if (thing) {
+        thing.style.display = "none";
+    }
+    // avoid duplicating overlay
+    if (document.getElementById("VictoryScreen")) {
+        return;
+    }
+    const overlay = document.createElement("div");
+    overlay.id = "VictoryScreen";
+    overlay.className = "victory-screen";
+    overlay.innerHTML = `
+        <div class="victory-content">
+            <h1>Loss!</h1>
+            <p>You DIED!!.</p>
+            <button id="playAgainBtn">Play Again</button>
+        </div>
+    `;
+    document.body.appendChild(overlay);
+    const playAgain = document.getElementById("playAgainBtn");
+    if (playAgain) {
+        playAgain.onclick = () => location.reload();
+    }
+}
 //funkce pro zmáčknutí tlaćítka "Konec Tahu"
 function TurnFinishpressed() {
     if (bardAct !== null) {
@@ -486,10 +592,17 @@ function TurnFinishpressed() {
             finishTurnBtn.style.display = "inline-flex";
         }
     }, 1000);
+    if (mage1.dead && warrior1.dead && bard1.dead) {
+        showLoseScreen();
+        return;
+    }
     newturn();
 }
 //všechny funkce níže jsou jen k vytváření tlačítek a ukládání dat do [Hrdina]Act a [Hrdina]Targ
 function MageBtnPressed() {
+    if (mage1.dead) {
+        return;
+    }
     actCancelBtnPressed();
     selectCancelBtnPressed();
     showActionBox(mageActionDiv);
@@ -589,6 +702,9 @@ function lightningStrikeBtnPressed() {
     mageTargetDiv.appendChild(cancelBtn);
 }
 function WarriorBtnPressed() {
+    if (warrior1.dead) {
+        return;
+    }
     actCancelBtnPressed();
     selectCancelBtnPressed();
     showActionBox(warriorActionDiv);
@@ -651,6 +767,9 @@ function mightyRoarBtnPressed() {
     warriorAct = () => warrior1.mightyRoar();
 }
 function BardBtnPressed() {
+    if (bard1.dead) {
+        return;
+    }
     actCancelBtnPressed();
     selectCancelBtnPressed();
     showActionBox(bardActionDiv);

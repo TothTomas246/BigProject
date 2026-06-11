@@ -138,11 +138,13 @@ class goomba extends enemy {
         this.name = "Goomba";
     }
     Attack() {
-        var choice = Math.floor(Math.random() * 2.999);
-        var chosen = heroes[choice];
-        if (chosen != null) {
-            chosen.damage(this.atk);
+        // pick a random alive hero; if none alive, do nothing
+        const alive = heroes.filter(h => h != null && h.dead == false);
+        if (alive.length === 0) {
+            return;
         }
+        const chosen = alive[Math.floor(Math.random() * alive.length)];
+        chosen.damage(this.atk);
         this.attackcounter++;
     }
 }
@@ -152,11 +154,41 @@ class koopa extends enemy {
         this.name = "Koopa";
     }
     Attack() {
-        var choice = Math.floor(Math.random() * 2.999);
-        var chosen = heroes[choice];
-        if (chosen != null) {
-            chosen.damage(this.atk);
+        // pick a random alive hero; if none alive, do nothing
+        const alive = heroes.filter(h => h != null && h.dead == false);
+        if (alive.length === 0) {
+            return;
         }
+        const chosen = alive[Math.floor(Math.random() * alive.length)];
+        chosen.damage(this.atk);
+        this.attackcounter++;
+    }
+}
+class baby extends enemy {
+    constructor(pos) {
+        super(75, 10, pos);
+        this.name = "Baby";
+    }
+    Attack() {
+        for (var hero of heroes) {
+            if (hero != null && hero.dead == false) {
+                hero.damage(this.atk);
+            }
+        }
+    }
+}
+class springer extends enemy {
+    constructor(pos) {
+        super(110, 30, pos);
+        this.name = "Springer";
+    }
+    Attack() {
+        const alive = heroes.filter(h => h != null && h.dead == false);
+        if (alive.length === 0) {
+            return;
+        }
+        const chosen = alive[Math.floor(Math.random() * alive.length)];
+        chosen.damage(this.atk);
         this.attackcounter++;
     }
 }
@@ -167,4 +199,8 @@ class descriptions {
     static swordSlash = "Runs up to the enemy and deals 50 damage";
     static mightyRoar = "The warrior lets out a mighty roar, deals 2.5x damage on the next attack";
     static healingMelody = "The bard plays a calming melody, healing all allies for 30 hp";
+    static goomba = "The TEST TEST TEST TEST TEST";
+    static koopa = "Uhhmm... uhhhh guh?";
+    static baby = "Dashes at the heroes all at once, dealing 10 damage to everyone";
+    static springer = "Jumps and crushes a target, dealing 30 damage";
 }
