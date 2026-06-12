@@ -259,23 +259,26 @@ button:active {
 
 #Stats {
     display: flex;
-    gap: 16px;
-    width: 100%;
-    padding: 0 25vw;
-    justify-content: center;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 18px;
+    width: min(100%, 1200px);
+    max-width: 1200px;
+    padding: 0 20px;
     box-sizing: border-box;
 }
 
 #Stats > div {
-    flex: 0 0 auto;
+    flex: 0 0 36%;
+    min-width: 300px;
 }
 
 .characterStats {
-    margin: 10px;
+    margin: 10px 0;
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: min(100%, 440px);
+    width: 100%;
     min-width: 0;
     flex-shrink: 0;
 }
@@ -366,21 +369,27 @@ button:active {
     }
 
     .actionTargetBox {
-        min-width: 0;
+        min-width: min-content;
+        width: auto;
         padding: 12px;
+        overflow-x: visible;
+        overflow-y: hidden;
     }
 
     .heroActionArea,
     .heroTargetArea {
-        flex-wrap: wrap;
-        justify-content: center;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
         gap: 8px;
+        overflow-x: visible;
+        width: auto;
+        min-width: min-content;
     }
 
     .heroActionArea button,
     .heroTargetArea button {
-        min-width: 0;
-        white-space: normal;
+        min-width: auto;
+        white-space: nowrap;
     }
 
     .heroImage,
@@ -450,7 +459,8 @@ button:active {
 }
 
 .actionTargetBox {
-    width: 100%;
+    width: auto;
+    min-width: min-content;
     min-height: 0;
     background: rgba(8, 14, 28, 0.94);
     border: 1px solid rgba(62, 149, 255, 0.22);
@@ -461,22 +471,27 @@ button:active {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    overflow-x: visible;
+    overflow-y: hidden;
 }
 
 .heroActionArea,
 .heroTargetArea {
     display: flex;
     flex-wrap: nowrap;
-    gap: 6px;
-    justify-content: center;
+    gap: 10px;
+    justify-content: flex-start;
     align-items: center;
-    overflow-x: auto;
+    overflow-x: visible;
     white-space: nowrap;
+    width: auto;
+    min-width: min-content;
 }
 
 .heroActionArea button,
 .heroTargetArea button {
     flex-shrink: 0;
+    white-space: nowrap;
 }
 
 .descriptionBox {
